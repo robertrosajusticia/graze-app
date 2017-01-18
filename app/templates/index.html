@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h2>Select a service to execute</h2>
+    <p>
+	    <select name="select_graze" id="select_graze"> 	
+	    <option value="">Select</option>	    	
+	    {% for dir in dirs %}    	
+	    	<optgroup label="{{ dir.capitalize() }}">    		
+	    		<option value="{{ dir+"_crawler.py" }}">{{ dir.capitalize() }} Crawler</option>
+	    		<option value="{{ dir+"_scraper.py" }}">{{ dir.capitalize() }} Scraper</option>
+	    	</optgroup>  			
+	    {% endfor %}    
+	    </select>   
+	</p>
+
+    <p>
+    	<input id="button" class="ui-button" value="Execute">
+    </p>
+
+	<script>
+	    $(function(){
+	      $("#button").click( function() {
+	      	  var selected = $("#select_graze")	      	  
+			  var site = $(':selected', selected).closest('optgroup').attr('label');	      	  
+	          var service = selected.val(); // get selected value
+	          if (service) { // require a URL
+	              window.location.replace("/execute?site="+site+"&service="+service); // redirect
+	          }
+	          return false;
+	      });
+	    });
+	</script>    
+
+{% endblock %}

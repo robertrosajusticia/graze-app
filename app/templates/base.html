@@ -1,0 +1,16 @@
+<html>
+  <head>
+    {% if title %}
+    <title>Graze: {{ title }} page</title>
+    {% else %}
+    <title>Welcome to Graze</title>
+    {% endif %}
+    <script src="/static/jquery-3.1.1.min.js"></script>    
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  </head>
+  <body>
+    <div>Graze: <a href="/index">Home</a> - <a href="/live_execs">Live executions</a></div>
+    <hr>
+    {% block content %}{% endblock %}
+  </body>
+</html>
