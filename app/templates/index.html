@@ -7,8 +7,8 @@
 	    <option value="">Select</option>	    	
 	    {% for dir in dirs %}    	
 	    	<optgroup label="{{ dir.capitalize() }}">    		
-	    		<option value="{{ dir+"_crawler.py" }}">{{ dir.capitalize() }} Crawler</option>
-	    		<option value="{{ dir+"_scraper.py" }}">{{ dir.capitalize() }} Scraper</option>
+	    		<option value="{{ dir+"_crawler.py" }}" site="{{ dir }}" service="crawler">{{ dir.capitalize() }} Crawler</option>
+	    		<option value="{{ dir+"_scraper.py" }}" site="{{ dir }}" service="scraper">{{ dir.capitalize() }} Scraper</option>
 	    	</optgroup>  			
 	    {% endfor %}    
 	    </select>   
@@ -22,9 +22,11 @@
 	    $(function(){
 	      $("#button").click( function() {
 	      	  var selected = $("#select_graze")	      	  
-			  var site = $(':selected', selected).closest('optgroup').attr('label');	      	  
-	          var service = selected.val(); // get selected value
-	          if (service) { // require a URL
+			  //var site = $(':selected', selected).closest('optgroup').attr('label');	      	  
+	          //var service = selected.val(); // get selected value
+	          var site =  $(':selected', selected).attr("site");	          
+	          var service =  $(':selected', selected).attr("service");	          
+	          if (service) { // require a VALUE
 	              window.location.replace("/execute?site="+site+"&service="+service); // redirect
 	          }
 	          return false;

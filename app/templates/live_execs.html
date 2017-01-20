@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h2>Current processes</h2>
+    <h2>Active processes</h2>
     <ul>    	
 	    {% for exec in execs %}    	
 	    	<li>{{ exec.getName() }}</li>  			

@@ -7,15 +7,10 @@ print _path
 sys.path.append(_path)
 from graze import Manager
 
-#import subprocess
-#import threading
-import uuid
 import os
 import sys
 from flask import render_template, url_for, abort, jsonify, request
 from app import app
-
-background_scripts = {}
 
 manager = Manager()
 
@@ -29,32 +24,22 @@ def index():
 
 @app.route('/execute')
 def execute():
-  id = str(uuid.uuid4())
   site = str(request.args.get('site', None))  
   service = str(request.args.get('service', None))  
-  background_scripts[id] = False  
-  manager.launch_thread(id, site, service)
-  return render_template('processing.html', 
-                          id=id, 
-                          service=service,
-                          title='Processing')
-
-@app.route('/is_done')
-def is_done():
-	id = request.args.get('id', None)
-	if id not in background_scripts:
-		abort(404)
-	return jsonify (done=background_scripts[id])
-
-
-@app.route('/finished')
-def finished():
-	return render_template("execution_finished.html",
-                          title='Execution Finished')	
-
-   
+  manager.launch_thread(site, service)
+  live_execs()
+ 
 @app.route('/live_execs')
 def live_execs():
   execs = manager.live_threads()
   return render_template("live_execs.html",
-                          execs=execs)  
+                          execs=execs,
+                          title="Active processes")  
+
+@app.route('/stop_exec')
+def stop_exec():
+  id = str(request.args.get('exec', None))
+  stopped = manager.stop_thread(id)
+  return render_template("message.html",
+                          title="Execution stopped",
+                          text="Execution of {} has been stopped".format(id))
