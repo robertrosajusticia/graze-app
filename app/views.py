@@ -9,7 +9,7 @@ from graze import Manager
 
 import os
 import sys
-from flask import render_template, url_for, abort, jsonify, request
+from flask import render_template, url_for, abort, jsonify, request, redirect
 from app import app
 
 manager = Manager()
@@ -27,8 +27,8 @@ def execute():
   site = str(request.args.get('site', None))  
   service = str(request.args.get('service', None))  
   manager.launch_thread(site, service)
-  live_execs()
- 
+  return redirect("/live_execs")  
+
 @app.route('/live_execs')
 def live_execs():
   execs = manager.live_threads()

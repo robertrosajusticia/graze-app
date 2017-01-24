@@ -4,7 +4,7 @@
     <h2>Active processes</h2>
     <ul>    	
 	    {% for exec in execs %}    	
-	    	<li>{{ exec.getName() }}</li>  			
+	    	<li><a href="/stop_exec?exec={{ exec.getName() }}" onclick="window.confirm('Are you sure?');">{{ exec.getName() }}</a></li>  			
 	    {% endfor %}    
 	    </select>   
 	</ul>  

@@ -1,0 +1,6 @@
+.python-version
+*.bak
+*.lst
+*.log
+*.pyc
+cache/
