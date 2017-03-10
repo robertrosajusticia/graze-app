@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h2>Select a crawler or create a new one</h2>
+    <p>
+	    <table border="1">	    	
+    	<tr>
+			<td>Name</td>		
+			<td>Interval</td>
+			<td>Next execution</td>
+			<td>Last execution</td>
+			<td>Edit</td>
+			<td>Execute now</td>
+		</tr>    	    
+	    {% for crawl in crawlers %}    		
+	    	<tr>
+    			<td>{{ crawl.name }}</td>		
+    			<td>{{ mil_to_time(crawl.interval) }}</td>
+    			<td>{{ mil_to_date(crawl.next_execution) }}</td>
+    			<td>{{ mil_to_date(crawl.last_execution) }}</td>
+    			<td><a href="edit('{{ crawl._id }}')">Edit</a></td>
+    			<td><a href="execute('{{ crawl._id }}')">Execute now</a></td>
+    		</tr>    			
+	    {% endfor %}    
+	    </table>   
+	</p>
+
+    <p>
+    	<input id="newbutton" class="ui-button" value="Create new schedule">
+    </p>    
+
+	<script>
+	    $(function(){
+	      $("#button").click( function() {
+	      	  var selected = $("#select_graze")	      	  
+			  //var site = $(':selected', selected).closest('optgroup').attr('label');	      	  
+	          //var service = selected.val(); // get selected value
+	          var site =  $(':selected', selected).attr("site");	          
+	          var service =  $(':selected', selected).attr("service");	          
+	          if (service) { // require a VALUE
+	              window.location.replace("/execute?site="+site+"&service="+service); // redirect
+	          }
+	          return false;
+	      });
+	    });
+		
+		$(function(){
+	      $("#newbutton").click( function() {
+              window.location.replace("/schedule_crawler"); // redirect
+	          return false;
+	      });
+	    });	    
+	</script>    
+
+{% endblock %}

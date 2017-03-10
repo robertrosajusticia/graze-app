@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h2>Select a crawler or create a new one</h2>
+    <p>
+    	<table border="0">
+    	<tr>
+    		<td>
+    			Name:
+    		</td>
+    		<td>
+	    		<input id="name" name="name" value=""> 
+	   		</td>
+	   	</tr>
+    	<tr>
+    		<td>
+    			Available Crawlers:
+    		</td>
+    		<td>
+				<select name="crawler_id" id="crawler_id"> 	
+			    	<option value="">Select</option>	    		    	
+		    		<option value="58b6e5c5734d1d48176cab12341">Argos</option>		
+		    		<option value="58b6e5c5734d1d48176cab12342">Primark</option>
+		    		<option value="58b6e5c5734d1d48176cab12343">Holland and Barrett</option>
+			    </select>  
+
+	   		</td>
+	   	</tr>	   	
+	   	<tr>
+    		<td>
+    			Interval type:
+    		</td>	   	
+	   		<td>
+				<select name="interval_type" id="interval_type"> 	
+			    	<option value="">Select</option>	    		    	
+		    		<option value="hour">Hour</option>		
+		    		<option value="daily">Day</option>
+		    		<option value="weekly">Week</option>
+			    </select>   
+	   		</td>
+	   	</tr>
+	   	<tr>
+    		<td>
+    			Interval value:
+    		</td>	   	
+	   		<td>
+				<select name="interval_value" id="interval_value"> 	
+			    	<option value="">Select</option>	    		    	
+			    	{% for i in range(1,10) %}    		
+		    			<option value="{{ i }}">{{ i }}</option>		
+			    	{% endfor %}   
+			    </select>   
+	   		</td>
+	   	</tr>	   	
+	   	<tr>
+    		<td>
+    			Date/Time from:
+    		</td>	   	
+	   		<td>
+			    <select name="day" id="day"> 	
+			    	<option value="">Day</option>	    	
+			    	{% for i in range(1,32) %}    		
+		    			<option value="{{ i }}">{{ i }}</option>		
+			    	{% endfor %}    
+			    </select>   
+			    &nbsp;/&nbsp;
+			    <select name="month" id="month"> 	
+			    	<option value="">Month</option>	    	
+			    	{% for i in range(1,13) %}    		
+		    			<option value="{{ i }}">{{ i }}</option>		
+			    	{% endfor %}    
+			    </select>   			    
+			    &nbsp;/&nbsp;
+			    <select name="year" id="year"> 	
+			    	<option value="">Year</option>	    	
+			    	{% for i in range(2017,2026) %}    		
+		    			<option value="{{ i }}">{{ i }}</option>		
+			    	{% endfor %}    
+			    </select>  
+			    &nbsp;&nbsp;&nbsp;
+			    <select name="hour" id="hour"> 	
+			    	<option value="">HH</option>	    	
+			    	{% for i in range(0,23) %}    		
+		    			<option value="{{ i }}">{{ i }}</option>		
+			    	{% endfor %}    
+			    </select>  
+			    &nbsp;:&nbsp;
+			    <select name="minute" id="minute"> 	
+			    	<option value="">MM</option>	    	
+			    	{% for i in range(0,60) %}    		
+		    			<option value="{{ i }}">{{ i }}</option>		
+			    	{% endfor %}    
+			    </select>  
+			</td>						
+		</tr>
+		</table>
+	</p>
+
+    <p>
+    	<input id="button" class="ui-button" value="Create new schedule">
+    </p>
+
+	<script>
+	    $(function(){
+	      $("#button").click( function() {
+	      	  var name = $("#name").val();    
+	      	  var crawler_id = $("#crawler_id");
+	          var crawler_id_selected =  $(':selected', crawler_id).attr("value");
+			  var interval_type = $("#interval_type");
+	          var interval_type_selected =  $(':selected', interval_type).attr("value");	  
+			  var interval_value = $("#interval_value");
+	          var interval_value_selected =  $(':selected', interval_value).attr("value");                          
+			  var day = $("#day");
+	          var day_selected =  $(':selected', day).attr("value");		          
+	          var month = $("#month");
+	          var month_selected =  $(':selected', month).attr("value");		          
+	          var year = $("#year");
+	          var year_selected =  $(':selected', year).attr("value");		  
+	          var hour = $("#hour");
+	          var hour_selected =  $(':selected', hour).attr("value");		                  
+	          var minute = $("#minute");
+	          var minute_selected =  $(':selected', minute).attr("value");		          
+	          var date_from = year_selected + "-" + month_selected + "-" + day_selected + " " + hour_selected + ":" + minute_selected;
+
+	          if (name) { // require a VALUE
+	              window.location.replace("/save_schedule?name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&crawler_id="+crawler_id_selected); // redirect
+	          } else {
+	          	  alert("Please, it is mandatory to fill all fields");
+	          }
+
+	          return false;
+	      });
+	    });
+	</script>    
+
+{% endblock %}
