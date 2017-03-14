@@ -97,7 +97,7 @@
 	</p>
 
     <p>
-    	<input id="button" class="ui-button" value="Create new schedule">
+    	<input id="button" class="ui-button" value="{{ btn_txt}}">
     </p>
 
 	<script>
@@ -123,7 +123,7 @@
 	          var date_from = year_selected + "-" + month_selected + "-" + day_selected + " " + hour_selected + ":" + minute_selected;
 
 	          if (name && crawler_id_selected && interval_type_selected && interval_value_selected && day_selected && month_selected && year_selected && hour_selected && minute_selected) { // require a VALUE
-	              window.location.replace("/save_schedule?name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&crawler_id="+crawler_id_selected); // redirect
+	              window.location.replace("/{{ function }}?id={{ crawler._id }}&name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&crawler_id="+crawler_id_selected); // redirect
 	          } else {
 	          	  alert("Please, it is mandatory to fill all fields");
 	          }
