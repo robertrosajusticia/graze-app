@@ -19,6 +19,9 @@ graze = Graze()
 db = DB()
 time = Time()
 
+interval_types = [["hour","Hour"],["daily","Day"],["weekly","Week"]]
+interval_values = [(str(x), str(x)) for x in range(1, 10+1)]
+
 @app.route('/')
 @app.route('/index')
 def index():	
@@ -59,10 +62,32 @@ def show_crawlers():
                           mil_to_time=time.mil_to_time
                           )
 
+@app.route('/edit_schedule')
+def edit_crawlers_scheduler():
+  id = str(request.args.get('id', None))
+  crawler = db.get_crawler_scheduler(id)
+  crawler['status'] = db.get_status_list()
+  interval = time.mil_to_time_coded(crawler['interval'])  
+  crawler['interval_types'] = interval_types
+  crawler['interval_type'] = interval[1]
+  crawler['interval_values'] = interval_values
+  crawler['interval_value'] = interval[0]
+  return render_template("schedule_crawler.html",
+                          title="Edit crawler schedule",
+                          crawler=crawler,
+                          mil_to_date=time.mil_to_date
+                          )
+
 @app.route('/schedule_crawler')
 def schedule_crawler():  
+  crawler = {}  
+  crawler['status'] = db.get_status_list()
+  crawler['interval_types'] = interval_types
+  crawler['interval_values'] = interval_values
   return render_template("schedule_crawler.html",
-                          title="Create new crawler schedule"
+                          title="Create new crawler schedule",
+                          crawler=crawler, #Template expects it when edit
+                          mil_to_date=time.mil_to_date #Template expects it when edit
                           )
 
 @app.route('/save_schedule')
@@ -83,13 +108,60 @@ def save_shedule():
   date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%Y-%m-%d %H:%M'))
   crawler_id = str(request.args.get('crawler_id', None))
 
-  result = db.add_crawler_scheduler(name, interval, date_from, crawler_id)
-  
-  if result:
-    result_text = "Schedule scheduled successfully"
-  else:
-    result_text = "It is not been possible to save the schedule, please try again"
+  document = {
+              "name": name,
+              "interval": interval,
+              "next_execution": date_from,                    
+              "last_execution": "",
+              "crawler_id": crawler_id
+             }
+  db.add_crawler_scheduler(document)
   return render_template("message.html",
                           title="Create new crawler schedule",
-                          text=result_text
+                          text="Schedule scheduled successfully"
                           )
+
+@app.route('/update_schedule')
+def update_shedule():  
+  id = str(request.args.get('id', None))
+  name = str(request.args.get('name', None))
+
+  interval_type = str(request.args.get('interval_type', None))
+  interval_value = str(request.args.get('interval_value', None))  
+  # A week by default
+  interval = 7*24*60*60*1000
+  if interval_type == "weekly":
+    interval = time.time_to_mil(int(interval_value)*24*7)
+  elif interval_type == "daily":    
+    interval = time.time_to_mil(int(interval_value)*24)
+  elif interval_type == "hour":
+    interval = time.time_to_mil(int(interval_value))  
+
+  date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%Y-%m-%d %H:%M'))
+  crawler_id = str(request.args.get('crawler_id', None))
+
+  document = {
+              "name": name,
+              "interval": interval,
+              "next_execution": next_execution,                    
+              "last_execution": "",
+              "crawler_id": crawler_id
+             }
+
+  db.update_crawler_scheduler(id, document)
+  return render_template("message.html",
+                          title="Update crawler schedule",
+                          text="Schedule updated successfully"
+                          )
+
+@app.route('/delete_schedule')
+def delete_shedule():  
+  id = str(request.args.get('id', None))
+  db.delete_crawler_scheduler(id)   
+  crawlers = db.get_crawler_scheduler_list()
+  return render_template("crawler.html",
+                            title="Crawler manager",
+                            crawlers=crawlers,
+                            mil_to_date=time.mil_to_date,
+                            mil_to_time=time.mil_to_time
+                            )
