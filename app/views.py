@@ -74,7 +74,9 @@ def edit_crawlers_scheduler():
   crawler['interval_value'] = interval[0]
   return render_template("schedule_crawler.html",
                           title="Edit crawler schedule",
-                          crawler=crawler,
+                          crawler=crawler,      
+                          function="update_schedule",
+                          btn_txt="Update schedule",
                           mil_to_date=time.mil_to_date
                           )
 
@@ -87,6 +89,8 @@ def schedule_crawler():
   return render_template("schedule_crawler.html",
                           title="Create new crawler schedule",
                           crawler=crawler, #Template expects it when edit
+                          function="save_schedule",
+                          btn_txt="Create new schedule",
                           mil_to_date=time.mil_to_date #Template expects it when edit
                           )
 
@@ -143,7 +147,7 @@ def update_shedule():
   document = {
               "name": name,
               "interval": interval,
-              "next_execution": next_execution,                    
+              "next_execution": date_from,                    
               "last_execution": "",
               "crawler_id": crawler_id
              }
