@@ -10,6 +10,7 @@
 			<td>Next execution</td>
 			<td>Last execution</td>
 			<td>Edit</td>
+			<td>Delete</td>
 			<td>Execute now</td>
 		</tr>    	    
 	    {% for crawl in crawlers %}    		
@@ -18,8 +19,9 @@
     			<td>{{ mil_to_time(crawl.interval) }}</td>
     			<td>{{ mil_to_date(crawl.next_execution) }}</td>
     			<td>{{ mil_to_date(crawl.last_execution) }}</td>
-    			<td><a href="edit('{{ crawl._id }}')">Edit</a></td>
-    			<td><a href="execute('{{ crawl._id }}')">Execute now</a></td>
+    			<td><a href="javascript:void(0);" onClick="edit('{{ crawl._id}}');">Edit</a></td>
+				<td><a href="javascript:void(0);" onClick="del('{{ crawl._id}}');">Delete</a></td>
+    			<td><a href="javascript:void(0);" id="execCrawl">Execute now</a></td>    			
     		</tr>    			
 	    {% endfor %}    
 	    </table>   
@@ -49,7 +51,19 @@
               window.location.replace("/schedule_crawler"); // redirect
 	          return false;
 	      });
-	    });	    
+	    });	   
+
+		function edit(id) {
+			window.location.replace("/edit_schedule?id="+id); // redirect
+			return false;
+		}		
+
+		function del(id) {
+			window.location.replace("/delete_schedule?id="+id); // redirect
+			return false;
+		}
+
+
 	</script>    
 
 {% endblock %}
