@@ -5,9 +5,12 @@ from os import path
 _path = path.abspath(path.join(path.dirname(path.abspath(__file__)), '..\..\\V3.0'))
 print _path
 sys.path.append(_path)
-from graze import Graze
-from graze import DB
-from graze import Time
+from graze import (
+  Graze, 
+  MongoDB, 
+  Time
+)
+
 from datetime import datetime
 
 import os
@@ -16,7 +19,7 @@ from flask import render_template, url_for, abort, jsonify, request, redirect
 from app import app
 
 graze = Graze()
-db = DB()
+db = MongoDB()
 time = Time()
 
 interval_types = [["hour","Hour"],["daily","Day"],["weekly","Week"]]
