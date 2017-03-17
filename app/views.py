@@ -8,7 +8,7 @@ sys.path.append(_path)
 from graze import (
   Graze, 
   MongoDB, 
-  Time
+  TimeConversion
 )
 
 from datetime import datetime
@@ -20,7 +20,7 @@ from app import app
 
 graze = Graze()
 db = MongoDB()
-time = Time()
+time = TimeConversion()
 
 interval_types = [["hour","Hour"],["daily","Day"],["weekly","Week"]]
 interval_values = [(str(x), str(x)) for x in range(1, 10+1)]
@@ -147,13 +147,12 @@ def update_shedule():
   date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%Y-%m-%d %H:%M'))
   crawler_id = str(request.args.get('crawler_id', None))
 
-  document = {
+  document = { '$set': { 
               "name": name,
               "interval": interval,
               "next_execution": date_from,                    
-              "last_execution": "",
               "crawler_id": crawler_id
-             }
+             }}
 
   db.update_crawler_scheduler(id, document)
   return render_template("message.html",
