@@ -55,50 +55,73 @@ def stop_exec():
                           title="Execution stopped",
                           text="Execution of {} has been stopped".format(id))
 
-@app.route('/crawler')
-def show_crawlers():
-  crawlers = db.get_crawler_scheduler_list()
-  return render_template("crawler.html",
-                          title="Crawler manager",
-                          crawlers=crawlers,
+@app.route('/schedule_list_crawler')
+@app.route('/schedule_list_scraper')
+def show_services():
+  route = request.url_rule.rule
+  service = route[route.rfind("_")+1:]
+  if service == "crawler":  
+    services = db.get_crawler_schedules({})
+  else:
+    services = db.get_scraper_schedules({})
+  return render_template("schedule_list.html",
+                          title="{} manager".format(service.title()),
+                          items=services,
+                          service=service,
                           mil_to_date=time.mil_to_date,
                           mil_to_time=time.mil_to_time
                           )
 
-@app.route('/edit_schedule')
-def edit_crawlers_scheduler():
+@app.route('/schedule_edit_crawler')
+@app.route('/schedule_edit_scraper')
+def edit_service_schedule():
+  route = request.url_rule.rule
+  service = route[route.rfind("_")+1:]     
   id = str(request.args.get('id', None))
-  crawler = db.get_crawler_scheduler(id)
-  crawler['status'] = db.get_status_list()
-  interval = time.mil_to_time_coded(crawler['interval'])  
-  crawler['interval_types'] = interval_types
-  crawler['interval_type'] = interval[1]
-  crawler['interval_values'] = interval_values
-  crawler['interval_value'] = interval[0]
-  return render_template("schedule_crawler.html",
-                          title="Edit crawler schedule",
-                          crawler=crawler,      
-                          function="update_schedule",
+  if service == "crawler":
+    item = db.get_crawler_schedule(id)
+    item['id'] = item['crawler_id']
+  else:
+    item = db.get_scraper_schedule(id)
+    item['id'] = item['scraper_id']
+  item['services_list'] = db.get_services(service)
+  interval = time.mil_to_time_coded(item['interval'])  
+  item['interval_types'] = interval_types
+  item['interval_type'] = interval[1]
+  item['interval_values'] = interval_values
+  item['interval_value'] = interval[0]
+  return render_template("schedule_edit.html",
+                          title="Edit {} schedule".format(service),
+                          item=item,     
+                          service=service, 
+                          function="schedule_update_{}".format(service),
                           btn_txt="Update schedule",
                           mil_to_date=time.mil_to_date
                           )
 
-@app.route('/schedule_crawler')
-def schedule_crawler():  
-  crawler = {}  
-  crawler['status'] = db.get_status_list()
-  crawler['interval_types'] = interval_types
-  crawler['interval_values'] = interval_values
-  return render_template("schedule_crawler.html",
-                          title="Create new crawler schedule",
-                          crawler=crawler, #Template expects it when edit
-                          function="save_schedule",
+@app.route('/schedule_new_crawler')
+@app.route('/schedule_new_scraper')
+def schedule_service():  
+  route = request.url_rule.rule
+  service = route[route.rfind("_")+1:]    
+  item = {}  
+  item['services_list'] = db.get_services(service)
+  item['interval_types'] = interval_types
+  item['interval_values'] = interval_values
+  return render_template("schedule_edit.html",
+                          title="Create new {} schedule".format(service),
+                          item=item, #Template expects it when edit
+                          service=service,
+                          function="schedule_save_{}".format(service),
                           btn_txt="Create new schedule",
                           mil_to_date=time.mil_to_date #Template expects it when edit
                           )
 
-@app.route('/save_schedule')
+@app.route('/schedule_save_crawler')
+@app.route('/schedule_save_scraper')
 def save_shedule():  
+  route = request.url_rule.rule
+  service = route[route.rfind("_")+1:]   
   name = str(request.args.get('name', None))
 
   interval_type = str(request.args.get('interval_type', None))
@@ -113,23 +136,29 @@ def save_shedule():
     interval = time.time_to_mil(int(interval_value))  
 
   date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%Y-%m-%d %H:%M'))
-  crawler_id = str(request.args.get('crawler_id', None))
+  service_id = str(request.args.get('service_id', None))
 
   document = {
               "name": name,
               "interval": interval,
               "next_execution": date_from,                    
               "last_execution": "",
-              "crawler_id": crawler_id
+              "{}_id".format(service): service_id
              }
-  db.add_crawler_scheduler(document)
+  if service == "crawler":
+    db.add_crawler_schedule(document)
+  else:
+    db.add_scraper_schedule(document)
   return render_template("message.html",
-                          title="Create new crawler schedule",
+                          title="Create new {} schedule".format(service),
                           text="Schedule scheduled successfully"
                           )
 
-@app.route('/update_schedule')
+@app.route('/schedule_update_crawler')
+@app.route('/schedule_update_scraper')
 def update_shedule():  
+  route = request.url_rule.rule
+  service = route[route.rfind("_")+1:]    
   id = str(request.args.get('id', None))
   name = str(request.args.get('name', None))
 
@@ -145,29 +174,39 @@ def update_shedule():
     interval = time.time_to_mil(int(interval_value))  
 
   date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%Y-%m-%d %H:%M'))
-  crawler_id = str(request.args.get('crawler_id', None))
+  service_id = str(request.args.get('service_id', None))
 
   document = { '$set': { 
               "name": name,
               "interval": interval,
               "next_execution": date_from,                    
-              "crawler_id": crawler_id
+              "{}_id".format(service): service_id
              }}
 
-  db.update_crawler_scheduler(id, document)
+  if service == "crawler":
+    db.update_crawler_schedule(id, document)
+  else:
+    db.update_scraper_schedule(id, document)
   return render_template("message.html",
-                          title="Update crawler schedule",
+                          title="Update {} schedule".format(service),
                           text="Schedule updated successfully"
                           )
 
-@app.route('/delete_schedule')
+@app.route('/schedule_delete_crawler')
+@app.route('/schedule_delete_scraper')
 def delete_shedule():  
+  route = request.url_rule.rule
+  service = route[route.rfind("_")+1:]      
   id = str(request.args.get('id', None))
-  db.delete_crawler_scheduler(id)   
-  crawlers = db.get_crawler_scheduler_list()
-  return render_template("crawler.html",
-                            title="Crawler manager",
-                            crawlers=crawlers,
+  if service == "crawler":
+    db.delete_crawler_schedule(id)   
+    items = db.get_crawler_schedule_list()
+  else:
+    db.delete_scraper_schedule(id)   
+    items = db.get_scraper_schedule_list()  
+  return render_template("schedule_list.html",
+                            title="{} manager".format(service),
+                            items=items,
                             mil_to_date=time.mil_to_date,
                             mil_to_time=time.mil_to_time
                             )
