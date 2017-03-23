@@ -9,18 +9,18 @@
     			Name:
     		</td>
     		<td>
-	    		<input id="name" name="name" value="{{ crawler.name }}"> 
+	    		<input id="name" name="name" value="{{ item.name }}"> 
 	   		</td>
 	   	</tr>
     	<tr>
     		<td>
-    			Available Crawlers:
+    			Available {{ service }}s:
     		</td>
     		<td>
-				<select name="crawler_id" id="crawler_id"> 	
+				<select name="{{ service }}_id" id="{{ service }}_id"> 	
 			    	<option value="">Select</option>	
-					{% for row in crawler.status %}
-					<option value="{{ row['_id'] }}" {% if "{}".format(row['_id']) == crawler.crawler_id %}selected{% endif %}>{{ row['name'] }}</option>
+					{% for row in item.services_list %}					
+					<option value="{{ row['_id'] }}" {% if "{}".format(row['_id']) == item.id %}selected{% endif %}>{{ row['name'] }}</option>
 					{% endfor %}			    			    	  
 			    </select>  
 
@@ -33,8 +33,8 @@
 	   		<td>
 				<select name="interval_type" id="interval_type"> 	
 			    	<option value="">Select</option>	    		    	
-					{% for row in crawler.interval_types %}
-					<option value="{{ row[0] }}" {% if row[0] == crawler.interval_type %}selected{% endif %}>{{ row[1] }}</option>
+					{% for row in item.interval_types %}
+					<option value="{{ row[0] }}" {% if row[0] == item.interval_type %}selected{% endif %}>{{ row[1] }}</option>
 					{% endfor %}
 			    </select>   
 	   		</td>
@@ -46,8 +46,8 @@
 	   		<td>
 				<select name="interval_value" id="interval_value"> 	
 			    	<option value="">Select</option>	    		    	
-					{% for row in crawler.interval_values %}
-					<option value="{{ row[0] }}" {% if row[0] == "{}".format(crawler.interval_value) %}selected{% endif %}>{{ row[1] }}</option>
+					{% for row in item.interval_values %}
+					<option value="{{ row[0] }}" {% if row[0] == "{}".format(item.interval_value) %}selected{% endif %}>{{ row[1] }}</option>
 					{% endfor %}
 			    </select>   
 	   		</td>
@@ -60,35 +60,35 @@
 			    <select name="day" id="day"> 	
 			    	<option value="">Day</option>	    	
 			    	{% for i in range(1,32) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(crawler['next_execution']).day %}selected{% endif %}>{{ i }}</option>		
+		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).day %}selected{% endif %}>{{ i }}</option>		
 			    	{% endfor %}    
 			    </select>   
 			    &nbsp;/&nbsp;
 			    <select name="month" id="month"> 	
 			    	<option value="">Month</option>	    	
 			    	{% for i in range(1,13) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(crawler['next_execution']).month %}selected{% endif %}>{{ i }}</option>		
+		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).month %}selected{% endif %}>{{ i }}</option>		
 			    	{% endfor %}    
 			    </select>   			    
 			    &nbsp;/&nbsp;
 			    <select name="year" id="year"> 	
 			    	<option value="">Year</option>	    	
 			    	{% for i in range(2017,2026) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(crawler['next_execution']).year %}selected{% endif %}>{{ i }}</option>		
+		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).year %}selected{% endif %}>{{ i }}</option>		
 			    	{% endfor %}    
 			    </select>  
 			    &nbsp;&nbsp;&nbsp;
 			    <select name="hour" id="hour"> 	
 			    	<option value="">HH</option>	    	
 			    	{% for i in range(0,23) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(crawler['next_execution']).hour %}selected{% endif %}>{{ i }}</option>		
+		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).hour %}selected{% endif %}>{{ i }}</option>		
 			    	{% endfor %}    
 			    </select>  
 			    &nbsp;:&nbsp;
 			    <select name="minute" id="minute"> 	
 			    	<option value="">MM</option>	    	
 			    	{% for i in range(0,60) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(crawler['next_execution']).minute %}selected{% endif %}>{{ i }}</option>		
+		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).minute %}selected{% endif %}>{{ i }}</option>		
 			    	{% endfor %}    
 			    </select>  
 			</td>						
@@ -104,8 +104,8 @@
 	    $(function(){
 	      $("#button").click( function() {
 	      	  var name = $("#name").val();    
-	      	  var crawler_id = $("#crawler_id");
-	          var crawler_id_selected =  $(':selected', crawler_id).attr("value");
+	      	  var {{ service }}_id = $("#{{ service }}_id");
+	          var {{ service }}_id_selected =  $(':selected', {{ service }}_id).attr("value");
 			  var interval_type = $("#interval_type");
 	          var interval_type_selected =  $(':selected', interval_type).attr("value");	  
 			  var interval_value = $("#interval_value");
@@ -122,8 +122,8 @@
 	          var minute_selected =  $(':selected', minute).attr("value");		          
 	          var date_from = year_selected + "-" + month_selected + "-" + day_selected + " " + hour_selected + ":" + minute_selected;
 
-	          if (name && crawler_id_selected && interval_type_selected && interval_value_selected && day_selected && month_selected && year_selected && hour_selected && minute_selected) { // require a VALUE
-	              window.location.replace("/{{ function }}?id={{ crawler._id }}&name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&crawler_id="+crawler_id_selected); // redirect
+	          if (name && {{ service }}_id_selected && interval_type_selected && interval_value_selected && day_selected && month_selected && year_selected && hour_selected && minute_selected) { // require a VALUE
+	              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&service_id="+{{ service }}_id_selected); // redirect
 	          } else {
 	          	  alert("Please, it is mandatory to fill all fields");
 	          }
