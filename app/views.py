@@ -8,7 +8,7 @@ sys.path.append(_path)
 from graze import (
   Graze, 
   MongoDB, 
-  TimeConversion
+  Time
 )
 
 from datetime import datetime
@@ -20,7 +20,7 @@ from app import app
 
 graze = Graze()
 db = MongoDB()
-time = TimeConversion()
+time = Time()
 
 interval_types = [["hour","Hour"],["daily","Day"],["weekly","Week"]]
 interval_values = [(str(x), str(x)) for x in range(1, 10+1)]
@@ -84,7 +84,7 @@ def edit_service_schedule():
   else:
     item = db.get_scraper_schedule(id)
     item['id'] = item['scraper_id']
-  item['services_list'] = db.get_services(service)
+  item['services_list'] = db.get_statuses()
   interval = time.mil_to_time_coded(item['interval'])  
   item['interval_types'] = interval_types
   item['interval_type'] = interval[1]
