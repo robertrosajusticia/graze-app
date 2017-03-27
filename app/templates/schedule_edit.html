@@ -20,7 +20,7 @@
 				<select name="{{ service }}_id" id="{{ service }}_id"> 	
 			    	<option value="">Select</option>	
 					{% for row in item.services_list %}					
-					<option value="{{ row['_id'] }}" {% if "{}".format(row['_id']) == item.id %}selected{% endif %}>{{ row['name'] }}</option>
+					<option value="{{ row['config_key'] }}" {% if "{}".format(row['config_key']) == item.id %}selected{% endif %}>{{ row['name'] }}</option>
 					{% endfor %}			    			    	  
 			    </select>  
 
