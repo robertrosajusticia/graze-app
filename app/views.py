@@ -53,7 +53,11 @@ def stop_exec():
   stopped = graze.stop_thread(id)
   return render_template("message.html",
                           title="Execution stopped",
-                          text="Execution of {} has been stopped".format(id))
+                          text="Execution of {} has been stopped".format(id),
+                          function="live_execs"
+                          )
+
+# Schedule functions
 
 @app.route('/schedule_list_crawler')
 @app.route('/schedule_list_scraper')
@@ -105,7 +109,7 @@ def schedule_service():
   route = request.url_rule.rule
   service = route[route.rfind("_")+1:]    
   item = {}  
-  item['services_list'] = db.get_services(service)
+  item['services_list'] = db.get_statuses()
   item['interval_types'] = interval_types
   item['interval_values'] = interval_values
   return render_template("schedule_edit.html",
@@ -135,7 +139,7 @@ def save_shedule():
   elif interval_type == "hour":
     interval = time.time_to_mil(int(interval_value))  
 
-  date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%Y-%m-%d %H:%M'))
+  date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%d-%m-%Y %H:%M'))
   service_id = str(request.args.get('service_id', None))
 
   document = {
@@ -151,7 +155,8 @@ def save_shedule():
     db.add_scraper_schedule(document)
   return render_template("message.html",
                           title="Create new {} schedule".format(service),
-                          text="Schedule scheduled successfully"
+                          text="Schedule scheduled successfully",
+                          function="schedule_list_{}".format(service)
                           )
 
 @app.route('/schedule_update_crawler')
@@ -173,7 +178,7 @@ def update_shedule():
   elif interval_type == "hour":
     interval = time.time_to_mil(int(interval_value))  
 
-  date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%Y-%m-%d %H:%M'))
+  date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%d-%m-%Y %H:%M'))
   service_id = str(request.args.get('service_id', None))
 
   document = { '$set': { 
@@ -189,7 +194,8 @@ def update_shedule():
     db.update_scraper_schedule(id, document)
   return render_template("message.html",
                           title="Update {} schedule".format(service),
-                          text="Schedule updated successfully"
+                          text="Schedule updated successfully",
+                          function="schedule_list_{}".format(service)
                           )
 
 @app.route('/schedule_delete_crawler')
@@ -200,13 +206,168 @@ def delete_shedule():
   id = str(request.args.get('id', None))
   if service == "crawler":
     db.delete_crawler_schedule(id)   
-    items = db.get_crawler_schedule_list()
+    items = db.get_crawler_schedules({})
   else:
     db.delete_scraper_schedule(id)   
-    items = db.get_scraper_schedule_list()  
+    items = db.get_scraper_schedules({})  
   return render_template("schedule_list.html",
                             title="{} manager".format(service),
                             items=items,
                             mil_to_date=time.mil_to_date,
                             mil_to_time=time.mil_to_time
                             )
+
+# Template functions
+
+@app.route('/template_list')
+def show_templates():
+  templates = db.get_templates({})
+  return render_template("template_list.html",
+                          title="Template manager",
+                          items=templates
+                          )
+
+@app.route('/template_new')
+def new_template():  
+  item = {}  
+  return render_template("template_edit.html",
+                          title="Create new template",
+                          item=item, #Template expects it when edit
+                          btn_txt="Create new template",
+                          function="template_save"
+                        )
+
+@app.route('/template_edit')
+def edit_template(): 
+  id = str(request.args.get('id', None))
+  item = db.get_template(id)
+  return render_template("template_edit.html",
+                          title="Edit template",
+                          item=item,
+                          btn_txt="Update template",
+                          function="template_update"
+                        )
+
+@app.route('/template_save')
+def save_template():  
+  name = str(request.args.get('name', None))
+  servicefor = str(request.args.get('service_for', None))
+  template = str(request.args.get('template', None))
+
+  document = {
+              "name": name,
+              "for": servicefor,
+              "template": template
+             }
+  db.add_template(document)
+  return render_template("message.html",
+                          title="Create new template",
+                          text="Template created successfully",
+                          function="template_list"
+                          )
+
+@app.route('/template_update')
+def update_template():  
+  id = str(request.args.get('id', None))
+  name = str(request.args.get('name', None))
+  servicefor = str(request.args.get('service_for', None))
+  template = str(request.args.get('template', None))
+  document = { '$set': { 
+              "name": name,
+              "for": servicefor,
+              "template": template
+             }}
+  db.update_template(id, document)
+  return render_template("message.html",
+                          title="Update template",
+                          text="Template updated successfully",
+                          function="template_list"
+                          )
+
+@app.route('/template_delete')
+def delete_template():   
+  id = str(request.args.get('id', None))
+  db.delete_template(id)   
+  templates = db.get_templates({})
+  return render_template("template_list.html",
+                          title="Template manager",
+                          items=templates
+                          )
+
+
+# Config functions
+
+@app.route('/config_list')
+def show_configs():
+  configs = db.get_configs({})
+  return render_template("config_list.html",
+                          title="Config files manager",
+                          items=configs
+                          )
+
+@app.route('/config_new')
+def new_config():  
+  item = {}  
+  return render_template("config_edit.html",
+                          title="Create new config file",
+                          item=item, #config expects it when edit
+                          btn_txt="Create new config file",
+                          function="config_save"
+                        )
+
+@app.route('/config_edit')
+def edit_config(): 
+  id = str(request.args.get('id', None))
+  item = db.get_config(id)
+  return render_template("config_edit.html",
+                          title="Edit config file",
+                          item=item,
+                          btn_txt="Update config file",
+                          function="config_update"
+                        )
+
+@app.route('/config_save')
+def save_config():  
+  name = str(request.args.get('name', None))
+  servicefor = str(request.args.get('service_for', None))
+  config = str(request.args.get('config', None))
+
+  document = {
+              "name": name,
+              "for": servicefor,
+              "config": config
+             }
+  db.add_config(document)
+  return render_template("message.html",
+                          title="Create new config file",
+                          text="Config file created successfully",
+                          function="config_list"
+                          )
+
+@app.route('/config_update')
+def update_config():  
+  id = str(request.args.get('id', None))
+  name = str(request.args.get('name', None))
+  servicefor = str(request.args.get('service_for', None))
+  config = str(request.args.get('config', None))
+  document = { '$set': { 
+              "name": name,
+              "for": servicefor,
+              "config": config
+             }}
+  db.update_config(id, document)
+  return render_template("message.html",
+                          title="Update config file",
+                          text="Config file updated successfully",
+                          function="config_list"
+                          )
+
+@app.route('/config_delete')
+def delete_config():   
+  id = str(request.args.get('id', None))
+  db.delete_config(id)   
+  configs = db.get_configs({})
+  return render_template("config_list.html",
+                          title="Config files manager",
+                          items=configs
+                          )
