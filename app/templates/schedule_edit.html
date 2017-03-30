@@ -1,135 +1,114 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h2>{{ title }}</h2>
-    <p>
-    	<table border="0">
-    	<tr>
-    		<td>
-    			Name:
-    		</td>
-    		<td>
-	    		<input id="name" name="name" value="{{ item.name }}"> 
-	   		</td>
-	   	</tr>
-    	<tr>
-    		<td>
-    			Available {{ service }}s:
-    		</td>
-    		<td>
-				<select name="{{ service }}_id" id="{{ service }}_id"> 	
-			    	<option value="">Select</option>	
-					{% for row in item.services_list %}					
-					<option value="{{ row['config_key'] }}" {% if "{}".format(row['config_key']) == item.id %}selected{% endif %}>{{ row['name'] }}</option>
-					{% endfor %}			    			    	  
-			    </select>  
+<div class="content animate-panel">
 
-	   		</td>
-	   	</tr>	   	
-	   	<tr>
-    		<td>
-    			Interval type:
-    		</td>	   	
-	   		<td>
-				<select name="interval_type" id="interval_type"> 	
-			    	<option value="">Select</option>	    		    	
-					{% for row in item.interval_types %}
-					<option value="{{ row[0] }}" {% if row[0] == item.interval_type %}selected{% endif %}>{{ row[1] }}</option>
-					{% endfor %}
-			    </select>   
-	   		</td>
-	   	</tr>
-	   	<tr>
-    		<td>
-    			Interval value:
-    		</td>	   	
-	   		<td>
-				<select name="interval_value" id="interval_value"> 	
-			    	<option value="">Select</option>	    		    	
-					{% for row in item.interval_values %}
-					<option value="{{ row[0] }}" {% if row[0] == "{}".format(item.interval_value) %}selected{% endif %}>{{ row[1] }}</option>
-					{% endfor %}
-			    </select>   
-	   		</td>
-	   	</tr>	   	
-	   	<tr>
-    		<td>
-    			Date/Time from:
-    		</td>	   	
-	   		<td>	   			
-			    <select name="day" id="day"> 	
-			    	<option value="">Day</option>	    	
-			    	{% for i in range(1,32) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).day %}selected{% endif %}>{{ i }}</option>		
-			    	{% endfor %}    
-			    </select>   
-			    &nbsp;/&nbsp;
-			    <select name="month" id="month"> 	
-			    	<option value="">Month</option>	    	
-			    	{% for i in range(1,13) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).month %}selected{% endif %}>{{ i }}</option>		
-			    	{% endfor %}    
-			    </select>   			    
-			    &nbsp;/&nbsp;
-			    <select name="year" id="year"> 	
-			    	<option value="">Year</option>	    	
-			    	{% for i in range(2017,2026) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).year %}selected{% endif %}>{{ i }}</option>		
-			    	{% endfor %}    
-			    </select>  
-			    &nbsp;&nbsp;&nbsp;
-			    <select name="hour" id="hour"> 	
-			    	<option value="">HH</option>	    	
-			    	{% for i in range(0,23) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).hour %}selected{% endif %}>{{ i }}</option>		
-			    	{% endfor %}    
-			    </select>  
-			    &nbsp;:&nbsp;
-			    <select name="minute" id="minute"> 	
-			    	<option value="">MM</option>	    	
-			    	{% for i in range(0,60) %}    		
-		    			<option value="{{ i }}" {% if i == mil_to_date(item['next_execution']).minute %}selected{% endif %}>{{ i }}</option>		
-			    	{% endfor %}    
-			    </select>  
-			</td>						
-		</tr>
-		</table>
-	</p>
+<div>
 
-    <p>
-    	<input id="button" class="ui-button" value="{{ btn_txt}}">
-    </p>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="hpanel">
+                <div class="panel-heading">
+                    <div class="panel-tools">
+                        <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                        <a class="closebox"><i class="fa fa-times"></i></a>
+                    </div>
+                    {{ title }}
+                </div>
+                <div class="panel-body">
+                <form method="get" class="form-horizontal">
+                <div class="form-group"><label class="col-sm-2 control-label">Name</label>
+
+                    <div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" value="{{ item.name }}"></div>
+                </div>
+
+		        <div class="hr-line-dashed"></div>
+		        <div class="form-group"><label class="col-sm-2 control-label">Available {{ service }}s</label>
+
+		            <div class="col-sm-10"><select class="form-control m-b" name="{{ service }}_id" id="{{ service }}_id">
+						<option value="">Select</option>	
+						{% for row in item.services_list %}					
+						<option value="{{ row['config_key'] }}" {% if "{}".format(row['config_key']) == item.id %}selected{% endif %}>{{ row['name'] }}</option>
+						{% endfor %}					            
+		            </select>
+		            </div>
+		        </div>       
+
+		        <div class="hr-line-dashed"></div>
+		        <div class="form-group"><label class="col-sm-2 control-label">Interval type</label>
+
+		            <div class="col-sm-10"><select class="form-control m-b" name="interval_type" id="interval_type">
+				    	<option value="">Select</option>	    		    	
+						{% for row in item.interval_types %}
+						<option value="{{ row[0] }}" {% if row[0] == item.interval_type %}selected{% endif %}>{{ row[1] }}</option>
+						{% endfor %}				            
+		            </select>
+		            </div>
+		        </div>      
+
+		        <div class="hr-line-dashed"></div>
+		        <div class="form-group"><label class="col-sm-2 control-label">Interval value</label>
+
+		            <div class="col-sm-10"><select class="form-control m-b" name="interval_value" id="interval_value">
+				    	<option value="">Select</option>	    		    	
+						{% for row in item.interval_values %}
+						<option value="{{ row[0] }}" {% if row[0] == "{}".format(item.interval_value) %}selected{% endif %}>{{ row[1] }}</option>
+						{% endfor %}				            
+		            </select>
+		            </div>
+		        </div>     
+
+		        <div class="hr-line-dashed"></div>
+		        <div class="form-group"><label class="col-sm-2 control-label">Date from</label>
+		        	<div class="col-sm-10">
+		                <div class="input-group date" id="datetimepicker">
+		                        <span class="input-group-addon">
+		                            <span class="fa fa-calendar"></span>
+		                        </span>
+		                    <input type="text" class="form-control" id="datetime" value="{{ mil_to_date(item['next_execution']) }}"/>
+		                </div>
+	                </div>
+                </div>		         		        		                 
+
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-2">
+                        <button class="btn btn-default" type="submit">Cancel</button>
+                        <button class="btn btn-primary" type="submit" id="button">{{ btn_txt}}</button>
+                    </div>
+                </div>
+                </form>
+                </div>                
+            </div>
+        </div>
+	</div>                
 
 	<script>
 	    $(function(){
-	      $("#button").click( function() {
-	      	  var name = $("#name").val();    
-	      	  var {{ service }}_id = $("#{{ service }}_id");
-	          var {{ service }}_id_selected =  $(':selected', {{ service }}_id).attr("value");
-			  var interval_type = $("#interval_type");
-	          var interval_type_selected =  $(':selected', interval_type).attr("value");	  
-			  var interval_value = $("#interval_value");
-	          var interval_value_selected =  $(':selected', interval_value).attr("value");                          
-			  var day = $("#day");
-	          var day_selected =  $(':selected', day).attr("value");		          
-	          var month = $("#month");
-	          var month_selected =  $(':selected', month).attr("value");		          
-	          var year = $("#year");
-	          var year_selected =  $(':selected', year).attr("value");		  
-	          var hour = $("#hour");
-	          var hour_selected =  $(':selected', hour).attr("value");		                  
-	          var minute = $("#minute");
-	          var minute_selected =  $(':selected', minute).attr("value");		          
-	          var date_from = year_selected + "-" + month_selected + "-" + day_selected + " " + hour_selected + ":" + minute_selected;
 
-	          if (name && {{ service }}_id_selected && interval_type_selected && interval_value_selected && day_selected && month_selected && year_selected && hour_selected && minute_selected) { // require a VALUE
-	              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&service_id="+{{ service }}_id_selected); // redirect
-	          } else {
-	          	  alert("Please, it is mandatory to fill all fields");
-	          }
+	    	// DateTimePicker
+            $('#datetimepicker').datetimepicker({
+    			format: 'DD-MM-YYYY HH:mm'
+			});
 
-	          return false;
-	      });
+	      	$("#button").click( function() {
+		      	  var name = $("#name").val();    
+		      	  var {{ service }}_id = $("#{{ service }}_id");
+		          var {{ service }}_id_selected =  $(':selected', {{ service }}_id).attr("value");
+				  var interval_type = $("#interval_type");
+		          var interval_type_selected =  $(':selected', interval_type).attr("value");	  
+				  var interval_value = $("#interval_value");
+		          var interval_value_selected =  $(':selected', interval_value).attr("value");                          	          
+		          var date_from = $("#datetime").val();
+
+		          if (name && {{ service }}_id_selected && interval_type_selected && interval_value_selected && date_from) { // require a VALUE
+		              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&service_id="+{{ service }}_id_selected); // redirect
+		          } else {
+		          	  alert("Please, it is mandatory to fill all fields");
+		          }
+
+		          return false;
+	      	});
 	    });
 	</script>    
 

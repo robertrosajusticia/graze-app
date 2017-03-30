@@ -1,17 +1,429 @@
+<!DOCTYPE html>
 <html>
-  <head>
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Page title -->
     {% if title %}
     <title>Graze: {{ title }} page</title>
     {% else %}
     <title>Welcome to Graze</title>
     {% endif %}
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!--<link rel="shortcut icon" type="image/ico" href="favicon.ico" />-->
+
     <script src="/static/jquery-3.1.1.min.js"></script>    
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  </head>
-  <body>
-    <div>Graze: <a href="/index">Home</a> - <a href="/live_execs">Active processes</a> 
-    - <a href="/schedule_list_crawler">Crawler</a> - <a href="/schedule_list_scraper">Scraper</a></div>
-    <hr>
-    {% block content %}{% endblock %}
-  </body>
+
+    <!-- Vendor styles -->
+    <link rel="stylesheet" href="../static/vendor/fontawesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="../static/vendor/metisMenu/dist/metisMenu.css" />
+    <link rel="stylesheet" href="../static/vendor/animate.css/animate.css" />
+    <link rel="stylesheet" href="../static/vendor/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="../static/vendor/xeditable/bootstrap3-editable/css/bootstrap-editable.css" />
+    <link rel="stylesheet" href="../static/vendor/select2-3.5.2/select2.css" />
+    <link rel="stylesheet" href="../static/vendor/select2-bootstrap/select2-bootstrap.css" />
+    <link rel="stylesheet" href="../static/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.css" />
+    <link rel="stylesheet" href="../static/vendor/bootstrap-datepicker-master/dist/css/bootstrap-datepicker3.min.css" />
+    <link rel="stylesheet" href="../static/vendor/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" />
+    <link rel="stylesheet" href="../static/vendor/clockpicker/dist/bootstrap-clockpicker.min.css" />
+    <link rel="stylesheet" href="../static/vendor/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+    <link rel="stylesheet" href="../static/vendor/summernote/dist/summernote.css" />
+    <link rel="stylesheet" href="../static/vendor/summernote/dist/summernote-bs3.css" />
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="../static/fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css" />
+    <link rel="stylesheet" href="../static/fonts/pe-icon-7-stroke/css/helper.css" />
+    <link rel="stylesheet" href="../static/styles/style.css">
+
+
+</head>
+<body class="fixed-navbar fixed-sidebar">
+
+<!-- Header -->
+<div id="header">
+    <div id="logo" class="light-version">
+        <span>
+            Graze
+        </span>
+    </div>
+    <nav role="navigation">
+        <div class="header-link hide-menu"><i class="fa fa-bars"></i></div>
+        <div class="small-logo">
+            <span class="text-primary">HOMER APP</span>
+        </div>
+        <form role="search" class="navbar-form-custom" method="post" action="#">
+            <div class="form-group">
+                <input type="text" placeholder="Search something special" class="form-control" name="search">
+            </div>
+        </form>
+        <div class="mobile-menu">
+            <button type="button" class="navbar-toggle mobile-menu-toggle" data-toggle="collapse" data-target="#mobile-collapse">
+                <i class="fa fa-chevron-down"></i>
+            </button>
+            <div class="collapse mobile-navbar" id="mobile-collapse">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a class="" href="login.html">Login</a>
+                    </li>
+                    <li>
+                        <a class="" href="login.html">Logout</a>
+                    </li>
+                    <li>
+                        <a class="" href="profile.html">Profile</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <ul class="nav navbar-nav no-borders">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                        <i class="pe-7s-speaker"></i>
+                    </a>
+                    <ul class="dropdown-menu hdropdown notification animated flipInX">
+                        <li>
+                            <a>
+                                <span class="label label-success">NEW</span> It is a long established.
+                            </a>
+                        </li>
+                        <li>
+                            <a>
+                                <span class="label label-warning">WAR</span> There are many variations.
+                            </a>
+                        </li>
+                        <li>
+                            <a>
+                                <span class="label label-danger">ERR</span> Contrary to popular belief.
+                            </a>
+                        </li>
+                        <li class="summary"><a href="#">See all notifications</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                        <i class="pe-7s-keypad"></i>
+                    </a>
+
+                    <div class="dropdown-menu hdropdown bigmenu animated flipInX">
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <a href="projects.html">
+                                        <i class="pe pe-7s-portfolio text-info"></i>
+                                        <h5>Projects</h5>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="mailbox.html">
+                                        <i class="pe pe-7s-mail text-warning"></i>
+                                        <h5>Email</h5>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="contacts.html">
+                                        <i class="pe pe-7s-users text-success"></i>
+                                        <h5>Contacts</h5>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="forum.html">
+                                        <i class="pe pe-7s-comment text-info"></i>
+                                        <h5>Forum</h5>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="analytics.html">
+                                        <i class="pe pe-7s-graph1 text-danger"></i>
+                                        <h5>Analytics</h5>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="file_manager.html">
+                                        <i class="pe pe-7s-box1 text-success"></i>
+                                        <h5>Files</h5>
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle label-menu-corner" href="#" data-toggle="dropdown">
+                        <i class="pe-7s-mail"></i>
+                        <span class="label label-success">4</span>
+                    </a>
+                    <ul class="dropdown-menu hdropdown animated flipInX">
+                        <div class="title">
+                            You have 4 new messages
+                        </div>
+                        <li>
+                            <a>
+                                It is a long established.
+                            </a>
+                        </li>
+                        <li>
+                            <a>
+                                There are many variations.
+                            </a>
+                        </li>
+                        <li>
+                            <a>
+                                Lorem Ipsum is simply dummy.
+                            </a>
+                        </li>
+                        <li>
+                            <a>
+                                Contrary to popular belief.
+                            </a>
+                        </li>
+                        <li class="summary"><a href="#">See All Messages</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" id="sidebar" class="right-sidebar-toggle">
+                        <i class="pe-7s-upload pe-7s-news-paper"></i>
+                    </a>
+                </li>
+                <li class="dropdown">
+                    <a href="login.html">
+                        <i class="pe-7s-upload pe-rotate-90"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+<!-- Navigation -->
+<aside id="menu">
+    <div id="navigation">
+        <div class="profile-picture">
+            <a href="index.html">
+                <img src="../static/images/GrazeAvatar.jpg" class="img-circle m-b" alt="logo">
+            </a>
+
+            <div class="stats-label text-color">
+                <span class="font-extra-bold font-uppercase">Web Scraping</span>
+
+                <div class="dropdown">
+                    <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                        <small class="text-muted">Options <b class="caret"></b></small>
+                    </a>
+                    <ul class="dropdown-menu animated flipInX m-t-xs">
+                        <li><a href="contacts.html">Info</a></li>
+                        <li><a href="profile.html">Conctact</a></li>
+                        <li><a href="analytics.html">Statis</a></li>
+                        <li class="divider"></li>
+                        <li><a href="login.html">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav" id="side-menu">
+            <li class="active">
+                <a href="/index"> <span class="nav-label">Home</span> </a>
+            </li>
+            <li>
+                <a href="/live_execs"> <span class="nav-label">Active Processes</span> <!--<span class="label label-success pull-right">Live</span>--></a>
+            </li>
+            <li>
+                <a href="#"><span class="nav-label">Schedule</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a href="/schedule_list_crawler">Schedule Crawler</a></li>
+                    <li><a href="/schedule_list_scraper">Schedule Scraper</a></li>                  
+                </ul>
+            </li>
+            <li>
+                <a href="/template_list"> <span class="nav-label">Templates</span></a>
+            </li>
+            <li>
+                <a href="/config_list"> <span class="nav-label">Configs</span></a>
+            </li>            
+            <li>
+                <a href="#"><span class="nav-label">Other example 1</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a href="forms_elements.html">Forms elements</a></li>
+                    <li class="active"><a href="forms_extended.html">Forms extended</a></li>
+                    <li><a href="text_editor.html">Text editor</a></li>
+                    <li><a href="wizard.html">Wizard</a></li>
+                    <li><a href="validation.html">Validation</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="options.html"> <span class="nav-label">Other example 2</span></a>
+            </li>
+
+        </ul>
+    </div>
+</aside>
+
+<!-- Main Wrapper -->
+<div id="wrapper">
+
+
+
+{% block content %}{% endblock %}
+
+
+
+</div>
+
+<!-- Vendor scripts -->
+<script src="../static/vendor/jquery/dist/jquery.min.js"></script>
+<script src="../static/vendor/jquery-ui/jquery-ui.min.js"></script>
+<script src="../static/vendor/slimScroll/jquery.slimscroll.min.js"></script>
+<script src="../static/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="../static/vendor/metisMenu/dist/metisMenu.min.js"></script>
+<script src="../static/vendor/iCheck/icheck.min.js"></script>
+<script src="../static/vendor/sparkline/index.js"></script>
+<script src="../static/vendor/moment/moment.js"></script>
+<script src="../static/vendor/xeditable/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+<script src="../static/vendor/select2-3.5.2/select2.min.js"></script>
+<script src="../static/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.js"></script>
+<script src="../static/vendor/bootstrap-datepicker-master/dist/js/bootstrap-datepicker.min.js"></script>
+<script src="../static/vendor/clockpicker/dist/bootstrap-clockpicker.min.js"></script>
+<script src="../static/vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../static/vendor/summernote/dist/summernote.min.js"></script>
+
+<!-- App scripts -->
+<script src="../static/scripts/homer.js"></script>
+
+    <script>
+
+        $(function(){
+
+            $('#datepicker').datepicker();
+            $("#datepicker").on("changeDate", function(event) {
+                $("#my_hidden_input").val(
+                        $("#datepicker").datepicker('getFormattedDate')
+                )
+            });
+
+            $('#datapicker2').datepicker();
+            $('#datepicker .input-group.date').datepicker({ });
+            $('#datepicker .input-daterange').datepicker({ });
+
+            $("#demo1").TouchSpin({
+                min: 0,
+                max: 100,
+                step: 0.1,
+                decimals: 2,
+                boostat: 5,
+                maxboostedstep: 10,
+            });
+
+            $("#demo2").TouchSpin({
+                verticalbuttons: true
+            });
+
+            $("#demo3").TouchSpin({
+                postfix: '%'
+            });
+
+            $("#demo4").TouchSpin({
+                postfix: "a button",
+                postfix_extraclass: "btn btn-default"
+            });
+
+            $(".js-source-states").select2();
+            $(".js-source-states-2").select2();
+
+            //turn to inline mode
+            $.fn.editable.defaults.mode = 'inline';
+
+            //defaults
+            $.fn.editable.defaults.url = '#';
+
+            //editables
+            $('#username').editable({
+                url: '#',
+                type: 'text',
+                pk: 1,
+                name: 'username',
+                title: 'Enter username'
+            });
+
+            $('#firstname').editable({
+                validate: function(value) {
+                    if($.trim(value) == '') return 'This field is required';
+                }
+            });
+
+            $('#sex').editable({
+                prepend: "not selected",
+                source: [
+                    {value: 1, text: 'Male'},
+                    {value: 2, text: 'Female'}
+                ],
+                display: function(value, sourceData) {
+                    var colors = {"": "gray", 1: "green", 2: "blue"},
+                            elem = $.grep(sourceData, function(o){return o.value == value;});
+
+                    if(elem.length) {
+                        $(this).text(elem[0].text).css("color", colors[value]);
+                    } else {
+                        $(this).empty();
+                    }
+                }
+            });
+
+            $('#dob').editable();
+
+            $('#event').editable({
+                placement: 'right',
+                combodate: {
+                    firstItem: 'name'
+                }
+            });
+
+            $('#comments').editable({
+                showbuttons: 'bottom'
+            });
+
+            $('#fruits').editable({
+                pk: 1,
+                limit: 3,
+                source: [
+                    {value: 1, text: 'banana'},
+                    {value: 2, text: 'peach'},
+                    {value: 3, text: 'apple'},
+                    {value: 4, text: 'watermelon'},
+                    {value: 5, text: 'orange'}
+                ]
+            });
+
+            $('#user .editable').on('hidden', function(e, reason){
+                if(reason === 'save' || reason === 'nochange') {
+                    var $next = $(this).closest('tr').next().find('.editable');
+                    if($('#autoopen').is(':checked')) {
+                        setTimeout(function() {
+                            $next.editable('show');
+                        }, 300);
+                    } else {
+                        $next.focus();
+                    }
+                }
+            });
+
+            // ClockPicker
+            $('.clockpicker').clockpicker({autoclose: true});
+
+            // DateTimePicker
+            $('#datetimepicker1').datetimepicker();
+
+        });
+
+    </script>
+
+</body>
 </html>
