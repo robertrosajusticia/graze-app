@@ -39,9 +39,9 @@
 
 		            <div class="col-sm-10">
 						<div class="panel-body">
-		                    <div class="summernote">
+		                    <pre class="summernote">
 		                        {{ item.template }}
-		                    </div>	                        
+		                    </pre>	                        
 
 		                </div>	  		                          
 		            </div>
@@ -62,17 +62,24 @@
 
 	<script>
 	    $(function(){
+	    	$("#templates").addClass("active");
 			//TemplateText	        	        
 	        $('.summernote').summernote({
-	        	airMode: true,
+	        	airMode: true
 	        });			
+
+	        var summerNote = $(".summernote");
+
+	        summerNote.each(function(){
+	        	var $this = $(this);
+	        	$this.html($this.text().trim()); 
+	        })
 
 	      	$("#button").click( function() {
 		      	  var name = $("#name").val();    
 				  var service_for = $("#service_for");
 		          var service_for_selected =  $(':selected', service_for).attr("value");		          
-		          var template = $(".summernote").code();
-
+		          var template = $(".summernote").text();
 		          
 		          if (name && service_for_selected && template) { // require a VALUE
 		              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&service_for="+service_for_selected+"&template="+template); 
