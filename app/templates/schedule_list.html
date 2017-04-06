@@ -48,6 +48,7 @@
 
 	<script>
 		$(function(){
+          $("#schedule{{ service }}").addClass("active");
 	      $("#newbutton").click( function() {
               window.location.replace("/schedule_new_{{ service }}"); // redirect
 	          return false;
