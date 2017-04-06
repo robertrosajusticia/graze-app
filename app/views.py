@@ -3,7 +3,6 @@
 import sys
 from os import path
 _path = path.abspath(path.join(path.dirname(path.abspath(__file__)), '..\..\\V3.0'))
-print _path
 sys.path.append(_path)
 from graze import (
   Graze, 
@@ -15,6 +14,7 @@ from datetime import datetime
 
 import os
 import sys
+import json
 from flask import render_template, url_for, abort, jsonify, request, redirect
 from app import app
 
@@ -241,6 +241,7 @@ def new_template():
 def edit_template(): 
   id = str(request.args.get('id', None))
   item = db.get_template(id)
+  item['template'] = str(json.dumps(item['template'], indent=4))
   return render_template("template_edit.html",
                           title="Edit template",
                           item=item,
@@ -253,7 +254,7 @@ def save_template():
   name = str(request.args.get('name', None))
   servicefor = str(request.args.get('service_for', None))
   template = str(request.args.get('template', None))
-
+  template = json.loads(template)
   document = {
               "name": name,
               "for": servicefor,
@@ -271,7 +272,8 @@ def update_template():
   id = str(request.args.get('id', None))
   name = str(request.args.get('name', None))
   servicefor = str(request.args.get('service_for', None))
-  template = str(request.args.get('template', None))
+  template = request.args.get('template', None)
+  template = json.loads(template)
   document = { '$set': { 
               "name": name,
               "for": servicefor,
