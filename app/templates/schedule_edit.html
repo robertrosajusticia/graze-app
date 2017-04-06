@@ -25,7 +25,7 @@
 		        <div class="hr-line-dashed"></div>
 		        <div class="form-group"><label class="col-sm-2 control-label">Available {{ service }}s</label>
 
-		            <div class="col-sm-10"><select class="form-control m-b" name="{{ service }}_id" id="{{ service }}_id">
+		            <div class="col-sm-10"><select class="form-control m-b" name="config_id" id="config_id">
 						<option value="">Select</option>	
 						{% for row in item.services_list %}					
 						<option value="{{ row['config_key'] }}" {% if "{}".format(row['config_key']) == item.id %}selected{% endif %}>{{ row['name'] }}</option>
@@ -93,16 +93,16 @@
 
 	      	$("#button").click( function() {
 		      	  var name = $("#name").val();    
-		      	  var {{ service }}_id = $("#{{ service }}_id");
-		          var {{ service }}_id_selected =  $(':selected', {{ service }}_id).attr("value");
+		      	  var config_id = $("#config_id");
+		          var config_id_selected =  $(':selected', config_id).attr("value");
 				  var interval_type = $("#interval_type");
 		          var interval_type_selected =  $(':selected', interval_type).attr("value");	  
 				  var interval_value = $("#interval_value");
 		          var interval_value_selected =  $(':selected', interval_value).attr("value");                          	          
 		          var date_from = $("#datetime").val();
 
-		          if (name && {{ service }}_id_selected && interval_type_selected && interval_value_selected && date_from) { // require a VALUE
-		              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&service_id="+{{ service }}_id_selected); // redirect
+		          if (name && config_id_selected && interval_type_selected && interval_value_selected && date_from) { // require a VALUE
+		              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&config_id="+config_id_selected); // redirect
 		          } else {
 		          	  alert("Please, it is mandatory to fill all fields");
 		          }

@@ -2,7 +2,7 @@
 
 import sys
 from os import path
-_path = path.abspath(path.join(path.dirname(path.abspath(__file__)), '..\..\\V3.0'))
+_path = path.abspath(path.join(path.dirname(path.abspath(__file__)), '..\..\\core'))
 sys.path.append(_path)
 from graze import (
   Graze, 
@@ -64,10 +64,7 @@ def stop_exec():
 def show_services():
   route = request.url_rule.rule
   service = route[route.rfind("_")+1:]
-  if service == "crawler":  
-    services = db.get_crawler_schedules({})
-  else:
-    services = db.get_scraper_schedules({})
+  services = db.get_schedules({"for": service})
   return render_template("schedule_list.html",
                           title="{} manager".format(service.title()),
                           items=services,
@@ -82,12 +79,8 @@ def edit_service_schedule():
   route = request.url_rule.rule
   service = route[route.rfind("_")+1:]     
   id = str(request.args.get('id', None))
-  if service == "crawler":
-    item = db.get_crawler_schedule(id)
-    item['id'] = item['crawler_id']
-  else:
-    item = db.get_scraper_schedule(id)
-    item['id'] = item['scraper_id']
+  item = db.get_schedule(id)
+  item['id'] = item['config_id']
   item['services_list'] = db.get_statuses()
   interval = time.mil_to_time_coded(item['interval'])  
   item['interval_types'] = interval_types
@@ -140,19 +133,17 @@ def save_shedule():
     interval = time.time_to_mil(int(interval_value))  
 
   date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%d-%m-%Y %H:%M'))
-  service_id = str(request.args.get('service_id', None))
+  config_id = str(request.args.get('config_id', None))
 
   document = {
               "name": name,
+              "for": service,
               "interval": interval,
               "next_execution": date_from,                    
               "last_execution": "",
-              "{}_id".format(service): service_id
+              "config_id": config_id
              }
-  if service == "crawler":
-    db.add_crawler_schedule(document)
-  else:
-    db.add_scraper_schedule(document)
+  db.add_schedule(document)
   return render_template("message.html",
                           title="Create new {} schedule".format(service),
                           text="Schedule scheduled successfully",
@@ -179,19 +170,16 @@ def update_shedule():
     interval = time.time_to_mil(int(interval_value))  
 
   date_from = time.date_to_mil(datetime.strptime(request.args.get('date_from', None), '%d-%m-%Y %H:%M'))
-  service_id = str(request.args.get('service_id', None))
+  config_id = str(request.args.get('config_id', None))
 
   document = { '$set': { 
               "name": name,
+              "for": service,
               "interval": interval,
               "next_execution": date_from,                    
-              "{}_id".format(service): service_id
+              "config_id": config_id
              }}
-
-  if service == "crawler":
-    db.update_crawler_schedule(id, document)
-  else:
-    db.update_scraper_schedule(id, document)
+  db.update_schedule(id, document)
   return render_template("message.html",
                           title="Update {} schedule".format(service),
                           text="Schedule updated successfully",
@@ -204,15 +192,12 @@ def delete_shedule():
   route = request.url_rule.rule
   service = route[route.rfind("_")+1:]      
   id = str(request.args.get('id', None))
-  if service == "crawler":
-    db.delete_crawler_schedule(id)   
-    items = db.get_crawler_schedules({})
-  else:
-    db.delete_scraper_schedule(id)   
-    items = db.get_scraper_schedules({})  
+  db.delete_schedule(id)   
+  items = db.get_schedules({"for": service})
   return render_template("schedule_list.html",
                             title="{} manager".format(service),
                             items=items,
+                            service=service,
                             mil_to_date=time.mil_to_date,
                             mil_to_time=time.mil_to_time
                             )
