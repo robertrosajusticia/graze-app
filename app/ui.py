@@ -28,10 +28,10 @@ interval_values = [(str(x), str(x)) for x in range(1, 10+1)]
 @app.route('/')
 @app.route('/index')
 def index():	
-    dirs = [d for d in os.listdir('..\\engine\sites') if os.path.isdir(os.path.join('..\\engine\sites', d))]
+    items = db.get_statuses()
     return render_template("index.html",
-                           title='Home',
-                           dirs=dirs)
+                           title='Home - Status',
+                           items=items)
 
 @app.route('/execute')
 def execute():
