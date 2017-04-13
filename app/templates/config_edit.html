@@ -75,7 +75,7 @@
 	        	$this.html($this.text().trim()); 
 	        })	        	
 
-	      	$("#button").click( function() {
+	      	$(".btn-primary").click( function() {
 		      	  var name = $("#name").val();    
 				  var service_for = $("#service_for");
 		          var service_for_selected =  $(':selected', service_for).attr("value");		          
@@ -90,6 +90,15 @@
 		          
 		          return false;
 	      	});
+	      	
+	      	$(".btn-default").click( function() {
+	      		if (window.confirm('Are you sure you want to cancel?')) {
+	      			window.location.replace("/config_list");
+	      		} else {
+	      			event.preventDefault();	      			
+	      		}
+	      		return false
+	      	});	      	
 	    });
 	</script>    
 

@@ -257,8 +257,10 @@ def update_template():
   id = str(request.args.get('id', None))
   name = str(request.args.get('name', None))
   servicefor = str(request.args.get('service_for', None))
-  template = request.args.get('template', None)
+  template = request.args.get('template', None).decode('utf-8')
+
   template = json.loads(template)
+
   document = { '$set': { 
               "name": name,
               "for": servicefor,

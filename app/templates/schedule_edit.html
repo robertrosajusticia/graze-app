@@ -91,7 +91,7 @@
     			format: 'DD-MM-YYYY HH:mm'
 			});
 
-	      	$("#button").click( function() {
+	      	$(".btn-primary").click( function() {
 		      	  var name = $("#name").val();    
 		      	  var config_id = $("#config_id");
 		          var config_id_selected =  $(':selected', config_id).attr("value");
@@ -109,6 +109,15 @@
 
 		          return false;
 	      	});
+
+	      	$(".btn-default").click( function() {
+	      		if (window.confirm('Are you sure you want to cancel?')) {
+	      			window.location.replace("/schedule_list");
+	      		} else {
+	      			event.preventDefault();	      			
+	      		}
+	      		return false
+	      	});	      	
 	    });
 	</script>    
 

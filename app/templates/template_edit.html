@@ -39,9 +39,14 @@
 
 		            <div class="col-sm-10">
 						<div class="panel-body">
+		                    <!--
 		                    <pre class="summernote">
 		                        {{ item.template }}
 		                    </pre>	                        
+		                    -->
+							<textarea id="template" style="width: 100%; font-family: monospace;" class="form-control" data-autoresize rows="5">
+								{{ item.template }}
+							</textarea>		                    
 
 		                </div>	  		                          
 		            </div>
@@ -63,24 +68,32 @@
 	<script>
 	    $(function(){
 	    	$("#templates").addClass("active");
-			//TemplateText	        	        
-	        $('.summernote').summernote({
-	        	airMode: true
-	        });			
 
-	        var summerNote = $(".summernote");
+	    	$("textarea").height( $("textarea")[0].scrollHeight );
 
-	        summerNote.each(function(){
+			jQuery.each(jQuery('textarea[data-autoresize]'), function() {
 	        	var $this = $(this);
 	        	$this.html($this.text().trim()); 
-	        })
 
-	      	$("#button").click( function() {
+			    var offset = this.offsetHeight - this.clientHeight;
+			 
+			    var resizeTextarea = function(el) {
+			        jQuery(el).css('height', 'auto').css('height', el.scrollHeight + offset);
+			    };
+			    jQuery(this).on('keyup input', function() { resizeTextarea(this); }).removeAttr('data-autoresize');
+			});	        
+
+	      	$(".btn-primary").click( function() {
 		      	  var name = $("#name").val();    
 				  var service_for = $("#service_for");
-		          var service_for_selected =  $(':selected', service_for).attr("value");		          
-		          var template = $(".summernote").text();
-		          
+		          var service_for_selected =  $(':selected', service_for).attr("value");
+		          //alert($("#template").val());
+		          console.log($("#template").val())
+		          console.log(typeof $("#template").val())
+
+
+		          var template = encodeURIComponent(JSON.parse(JSON.stringify($("#template").val())));
+
 		          if (name && service_for_selected && template) { // require a VALUE
 		              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&service_for="+service_for_selected+"&template="+template); 
 		          } else {
@@ -88,6 +101,15 @@
 		          }
 		          
 		          return false;
+	      	});
+
+	      	$(".btn-default").click( function() {
+	      		if (window.confirm('Are you sure you want to cancel?')) {
+	      			window.location.replace("/template_list");
+	      		} else {
+	      			event.preventDefault();	      			
+	      		}
+	      		return false
 	      	});
 	    });
 	</script>    
