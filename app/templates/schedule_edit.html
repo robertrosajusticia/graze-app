@@ -22,8 +22,20 @@
                     <div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" value="{{ item.name }}"></div>
                 </div>
 
+				<div class="hr-line-dashed"></div>
+		        <div class="form-group"><label class="col-sm-2 control-label">For</label>
+
+		            <div class="col-sm-10"><select class="form-control m-b" name="service_for" id="service_for">
+						<option value="">Select</option>	
+						{% for row in ["crawler", "scraper"] %}					
+						<option value="{{ row }}" {% if row == item.for %}selected{% endif %}>{{ row.title() }}</option>
+						{% endfor %}					            
+		            </select>
+		            </div>
+		        </div>                      
+
 		        <div class="hr-line-dashed"></div>
-		        <div class="form-group"><label class="col-sm-2 control-label">Available {{ service }}s</label>
+		        <div class="form-group"><label class="col-sm-2 control-label">Available services</label>
 
 		            <div class="col-sm-10"><select class="form-control m-b" name="config_id" id="config_id">
 						<option value="">Select</option>	
@@ -85,7 +97,7 @@
 
 	<script>
 	    $(function(){
-	    	$("#schedule{{ service }}").addClass("active");
+	    	$("#schedule").addClass("active");
 	    	// DateTimePicker
             $('#datetimepicker').datetimepicker({
     			format: 'DD-MM-YYYY HH:mm'
@@ -93,6 +105,8 @@
 
 	      	$(".btn-primary").click( function() {
 		      	  var name = $("#name").val();    
+		      	  var service_for = $("#service_for");
+		          var service_for_selected =  $(':selected', service_for).attr("value");
 		      	  var config_id = $("#config_id");
 		          var config_id_selected =  $(':selected', config_id).attr("value");
 				  var interval_type = $("#interval_type");
@@ -101,8 +115,8 @@
 		          var interval_value_selected =  $(':selected', interval_value).attr("value");                          	          
 		          var date_from = $("#datetime").val();
 
-		          if (name && config_id_selected && interval_type_selected && interval_value_selected && date_from) { // require a VALUE
-		              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&config_id="+config_id_selected); // redirect
+		          if (name && service_for_selected && config_id_selected && interval_type_selected && interval_value_selected && date_from) { // require a VALUE
+		              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&service_for="+service_for_selected+"&interval_type="+interval_type_selected+"&interval_value="+interval_value_selected+"&date_from="+date_from+"&config_id="+config_id_selected); // redirect
 		          } else {
 		          	  alert("Please, it is mandatory to fill all fields");
 		          }

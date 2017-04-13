@@ -75,67 +75,53 @@ def stop_exec():
 
 # Schedule functions
 
-@app.route('/schedule_list_crawler')
-@app.route('/schedule_list_scraper')
-def show_services():
-  route = request.url_rule.rule
-  service = route[route.rfind("_")+1:]
-  services = db.get_schedules({"for": service})
+@app.route('/schedule_list')
+def show_schedules():
+  services = db.get_schedules({})
   return render_template("schedule_list.html",
-                          title="{} manager".format(service.title()),
+                          title="Schedule manager",
                           items=services,
-                          service=service,
                           mil_to_date=time.mil_to_date,
                           mil_to_time=time.mil_to_time
                           )
 
-@app.route('/schedule_edit_crawler')
-@app.route('/schedule_edit_scraper')
-def edit_service_schedule():
-  route = request.url_rule.rule
-  service = route[route.rfind("_")+1:]     
+@app.route('/schedule_edit')
+def edit_schedule():  
   id = str(request.args.get('id', None))
   item = db.get_schedule(id)
   item['id'] = item['config_id']
-  item['services_list'] = db.get_statuses()
+  item['services_list'] = db.get_configs({})
   interval = time.mil_to_time_coded(item['interval'])  
   item['interval_types'] = interval_types
   item['interval_type'] = interval[1]
   item['interval_values'] = interval_values
   item['interval_value'] = interval[0]
   return render_template("schedule_edit.html",
-                          title="Edit {} schedule".format(service),
-                          item=item,     
-                          service=service, 
-                          function="schedule_update_{}".format(service),
+                          title="Edit schedule",
+                          item=item,
+                          function="schedule_update",
                           btn_txt="Update schedule",
                           mil_to_date=time.mil_to_date
                           )
 
-@app.route('/schedule_new_crawler')
-@app.route('/schedule_new_scraper')
-def schedule_service():  
-  route = request.url_rule.rule
-  service = route[route.rfind("_")+1:]    
+@app.route('/schedule_new')
+def schedule_service():   
   item = {}  
-  item['services_list'] = db.get_statuses()
+  item['services_list'] = db.get_configs({})
   item['interval_types'] = interval_types
   item['interval_values'] = interval_values
   return render_template("schedule_edit.html",
-                          title="Create new {} schedule".format(service),
+                          title="Create new schedule",
                           item=item, #Template expects it when edit
-                          service=service,
-                          function="schedule_save_{}".format(service),
+                          function="schedule_save",
                           btn_txt="Create new schedule",
                           mil_to_date=time.mil_to_date #Template expects it when edit
                           )
 
-@app.route('/schedule_save_crawler')
-@app.route('/schedule_save_scraper')
-def save_shedule():  
-  route = request.url_rule.rule
-  service = route[route.rfind("_")+1:]   
+@app.route('/schedule_save')
+def save_shedule():       
   name = str(request.args.get('name', None))
+  service_for = str(request.args.get('service_for', None))
 
   interval_type = str(request.args.get('interval_type', None))
   interval_value = str(request.args.get('interval_value', None))  
@@ -153,7 +139,7 @@ def save_shedule():
 
   document = {
               "name": name,
-              "for": service,
+              "for": service_for,
               "interval": interval,
               "next_execution": date_from,                    
               "last_execution": "",
@@ -161,19 +147,16 @@ def save_shedule():
              }
   db.add_schedule(document)
   return render_template("message.html",
-                          title="Create new {} schedule".format(service),
+                          title="Create new schedule",
                           text="Schedule scheduled successfully",
-                          function="schedule_list_{}".format(service)
+                          function="schedule_list"
                           )
 
-@app.route('/schedule_update_crawler')
-@app.route('/schedule_update_scraper')
+@app.route('/schedule_update')
 def update_shedule():  
-  route = request.url_rule.rule
-  service = route[route.rfind("_")+1:]    
   id = str(request.args.get('id', None))
   name = str(request.args.get('name', None))
-
+  service_for = str(request.args.get('service_for', None))
   interval_type = str(request.args.get('interval_type', None))
   interval_value = str(request.args.get('interval_value', None))  
   # A week by default
@@ -190,30 +173,26 @@ def update_shedule():
 
   document = { '$set': { 
               "name": name,
-              "for": service,
+              "for": service_for,
               "interval": interval,
               "next_execution": date_from,                    
               "config_id": config_id
              }}
   db.update_schedule(id, document)
   return render_template("message.html",
-                          title="Update {} schedule".format(service),
+                          title="Update schedule",
                           text="Schedule updated successfully",
-                          function="schedule_list_{}".format(service)
+                          function="schedule_list"
                           )
 
-@app.route('/schedule_delete_crawler')
-@app.route('/schedule_delete_scraper')
+@app.route('/schedule_delete')
 def delete_shedule():  
-  route = request.url_rule.rule
-  service = route[route.rfind("_")+1:]      
   id = str(request.args.get('id', None))
   db.delete_schedule(id)   
-  items = db.get_schedules({"for": service})
+  items = db.get_schedules({})
   return render_template("schedule_list.html",
-                            title="{} manager".format(service),
+                            title="Schedule manager",
                             items=items,
-                            service=service,
                             mil_to_date=time.mil_to_date,
                             mil_to_time=time.mil_to_time
                             )

@@ -12,7 +12,7 @@
                     <a class="showhide"><i class="fa fa-chevron-up"></i></a>
                     <a class="closebox"><i class="fa fa-times"></i></a>
                 </div>
-                Select a {{ service }} or create a new one
+                Select a Schedule or create a new one
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
@@ -20,6 +20,7 @@
                     <thead>
                     <tr>
                         <th>Name</th>
+                        <th>For</th>
                         <th>Interval</th>
                         <th>Next execution</th>
                         <th>Last execution</th>
@@ -30,7 +31,8 @@
                     <tbody>
 				    {% for item in items %}    		
 				    	<tr>
-			    			<td>{{ item.name }}</td>		
+			    			<td>{{ item.name }}</td>
+                            <td>{{ item.for.title() }}</td>		
 			    			<td>{{ mil_to_time(item.interval) }}</td>
 			    			<td>{{ mil_to_date(item.next_execution) }}</td>
 			    			<td>{{ mil_to_date(item.last_execution) }}</td>
@@ -48,20 +50,20 @@
 
 	<script>
 		$(function(){
-          $("#schedule{{ service }}").addClass("active");
+          $("#schedule").addClass("active");
 	      $("#newbutton").click( function() {
-              window.location.replace("/schedule_new_{{ service }}"); // redirect
+              window.location.replace("/schedule_new"); // redirect
 	          return false;
 	      });
 	    });	   
 
 		function edit(id) {
-			window.location.replace("/schedule_edit_{{ service }}?id="+id); // redirect
+			window.location.replace("/schedule_edit?id="+id); // redirect
 			return false;
 		}		
 
 		function del(id) {
-			window.location.replace("/schedule_delete_{{ service }}?id="+id); // redirect
+			window.location.replace("/schedule_delete?id="+id); // redirect
 			return false;
 		}
 
