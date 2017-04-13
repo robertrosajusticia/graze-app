@@ -22,30 +22,41 @@
                     <div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" value="{{ item.name }}"></div>
                 </div>
 
-		        <div class="hr-line-dashed"></div>
-		        <div class="form-group"><label class="col-sm-2 control-label">Service for</label>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group"><label class="col-sm-2 control-label">Site</label>
 
-		            <div class="col-sm-10"><select class="form-control m-b" name="service_for" id="service_for">
+                    <div class="col-sm-10"><input type="text" class="form-control" id="site" name="site" value="{{ item.config.get('site') if item.config.get('site') is not none else '' }}"></div>
+                </div>
+
+                <div class="hr-line-dashed"></div>
+                <div class="form-group"><label class="col-sm-2 control-label">Start URL</label>
+
+                    <div class="col-sm-10"><input type="text" class="form-control" id="start_url" name="start_url" value="{{ item.config.get('start_url') if item.config.get('start_url') is not none else '' }}"></div>
+                </div>                
+
+		        <div class="hr-line-dashed"></div>
+		        <div class="form-group"><label class="col-sm-2 control-label">Crawler Template</label>
+
+		            <div class="col-sm-10"><select class="form-control m-b" name="crawler_template_key" id="crawler_template_key">
 						<option value="">Select</option>	
-						{% for row in ["crawler", "downloader", "scraper"] %}					
-						<option value="{{ row }}" {% if row == item.for %}selected{% endif %}>{{ row.title() }}</option>
+						{% for row in item.crawler_templates %}					
+						<option value="{{ row._id }}" {% if row._id == item.config.get('crawler_template_key') %}selected{% endif %}>{{ row.name }}</option>
 						{% endfor %}					            
 		            </select>
 		            </div>
-		        </div>       
+		        </div>    
 
-				<div class="hr-line-dashed"></div>
-		        <div class="form-group"><label class="col-sm-2 control-label">Config file</label>
+		        <div class="hr-line-dashed"></div>
+		        <div class="form-group"><label class="col-sm-2 control-label">Scraper Template</label>
 
-		            <div class="col-sm-10">
-						<div class="panel-body">
-		                    <pre class="summernote">
-		                        {{ item.config }}
-		                    </pre>	                        
-
-		                </div>	  		                          
+		            <div class="col-sm-10"><select class="form-control m-b" name="scraper_template_key" id="scraper_template_key">
+						<option value="">Select</option>	
+						{% for row in item.scraper_templates %}					
+						<option value="{{ row._id }}" {% if row._id == item.config.get('scraper_template_key') %}selected{% endif %}>{{ row.name }}</option>
+						{% endfor %}					            
+		            </select>
 		            </div>
-		        </div>       		                    							               
+		        </div>		                		                   
 
                 <div class="hr-line-dashed"></div>
                 <div class="form-group">
@@ -63,27 +74,18 @@
 	<script>
 	    $(function(){
 	    	$("#configs").addClass("active");
-			//TemplateText	        	        
-	        $('.summernote').summernote({
-	        	airMode: true,
-	        });		
-
-	        var summerNote = $(".summernote");
-
-	        summerNote.each(function(){
-	        	var $this = $(this);
-	        	$this.html($this.text().trim()); 
-	        })	        	
 
 	      	$(".btn-primary").click( function() {
 		      	  var name = $("#name").val();    
-				  var service_for = $("#service_for");
-		          var service_for_selected =  $(':selected', service_for).attr("value");		          
-		          var config = $(".summernote").code();
-
+		      	  var site = $("#site").val();
+		      	  var start_url = $("#start_url").val();
+				  var crawler_template_key = $("#crawler_template_key");
+		          var crawler_template_key_selected =  $(':selected', crawler_template_key).attr("value");		          
+			  	  var scraper_template_key = $("#scraper_template_key");
+		          var scraper_template_key_selected =  $(':selected', scraper_template_key).attr("value");	
 		          
-		          if (name && service_for_selected && config) { // require a VALUE
-		              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&service_for="+service_for_selected+"&config="+config); 
+		          if (name && site && start_url && crawler_template_key_selected && scraper_template_key_selected) { // require a VALUE
+		              window.location.replace("/{{ function }}?id={{ item._id }}&name="+name+"&site="+site+"&start_url="+start_url+"&crawler_template_key="+crawler_template_key_selected+"&scraper_template_key="+scraper_template_key_selected); 
 		          } else {
 		          	  alert("Please, it is mandatory to fill all fields");
 		          }

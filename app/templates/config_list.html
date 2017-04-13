@@ -20,8 +20,8 @@
                     <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Service for</th>
-                        <th>Config file</th>
+                        <th>Site</th>
+                        <th>Start URL</th>
                         <th>Edit</th>
                         <th>Delete</th>
                     </tr>
@@ -30,8 +30,8 @@
 				    {% for item in items %}    		
 				    	<tr>
 			    			<td>{{ item.name }}</td>		
-			    			<td>{{ item.for.title() }}</td>
-			    			<td>{{ item.config }}</td>
+			    			<td>{{ item.config.get('site') }}</td>
+                            <td>{{ item.config.get('start_url') }}</td>
 			    			<td><a href="javascript:void(0);" onClick="edit('{{ item._id}}');">Edit</a></td>
 							<td><a href="javascript:void(0);" onClick="del('{{ item._id}}');">Delete</a></td>   			
 			    		</tr>    			

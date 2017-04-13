@@ -1,12 +1,14 @@
 #!/usr/bin/python
 
 import sys
+import uuid
+from bson.objectid import ObjectId
 from os import path
 _path = path.abspath(path.join(path.dirname(path.abspath(__file__)), '..\..\\core'))
 sys.path.append(_path)
 from graze import (
   Graze, 
-  MongoDB, 
+  MongoDB,   
   Time
 )
 
@@ -18,12 +20,26 @@ import json
 from flask import render_template, url_for, abort, jsonify, request, redirect
 from app import app
 
+
 graze = Graze()
 db = MongoDB()
 time = Time()
 
 interval_types = [["hour","Hour"],["daily","Day"],["weekly","Week"]]
 interval_values = [(str(x), str(x)) for x in range(1, 10+1)]
+
+def generate_session_id(prefix='session'): 
+  return '{}{}'.format(prefix, str(uuid.uuid4()).replace('-', ''))
+
+def oid(id_=None):
+    if id_ is None:
+        return ObjectId()
+    if isinstance(id_, ObjectId):
+        return id_
+    if isinstance(id_, basestring):
+        return ObjectId(id_)
+    raise MongoError("Could not create ObjectId using: {}".format(id_))
+
 
 @app.route('/')
 @app.route('/index')
@@ -238,7 +254,7 @@ def edit_template():
 def save_template():  
   name = str(request.args.get('name', None))
   servicefor = str(request.args.get('service_for', None))
-  template = str(request.args.get('template', None))
+  template = request.args.get('template', None)
   template = json.loads(template)
   document = {
               "name": name,
@@ -258,9 +274,7 @@ def update_template():
   name = str(request.args.get('name', None))
   servicefor = str(request.args.get('service_for', None))
   template = request.args.get('template', None).decode('utf-8')
-
   template = json.loads(template)
-
   document = { '$set': { 
               "name": name,
               "for": servicefor,
@@ -297,6 +311,9 @@ def show_configs():
 @app.route('/config_new')
 def new_config():  
   item = {}  
+  item['config'] = {}
+  item['crawler_templates'] = db.get_templates({"for": "crawler"})
+  item['scraper_templates'] = db.get_templates({"for": "scraper"})
   return render_template("config_edit.html",
                           title="Create new config file",
                           item=item, #config expects it when edit
@@ -308,6 +325,8 @@ def new_config():
 def edit_config(): 
   id = str(request.args.get('id', None))
   item = db.get_config(id)
+  item['crawler_templates'] = db.get_templates({"for": "crawler"})
+  item['scraper_templates'] = db.get_templates({"for": "scraper"})  
   return render_template("config_edit.html",
                           title="Edit config file",
                           item=item,
@@ -316,17 +335,27 @@ def edit_config():
                         )
 
 @app.route('/config_save')
-def save_config():  
+def save_config(): 
   name = str(request.args.get('name', None))
-  servicefor = str(request.args.get('service_for', None))
-  config = str(request.args.get('config', None))
-
+  site = str(request.args.get('site', None))
+  start_url = str(request.args.get('start_url', None))
+  crawler_template_key = request.args.get('crawler_template_key', None)
+  scraper_template_key = request.args.get('scraper_template_key', None)
+  user_id = "Demo"
+  session_id = generate_session_id()
   document = {
-              "name": name,
-              "for": servicefor,
-              "config": config
-             }
-  db.add_config(document)
+              "name": name,              
+              "config": {
+                "site": site,
+                "start_url": start_url,
+                "user_id": user_id,
+                "session_id": session_id,
+                "crawler_template_key": oid(crawler_template_key),
+                "scraper_template_key": oid(scraper_template_key)
+              }
+             }  
+
+  db.add_config(document) 
   return render_template("message.html",
                           title="Create new config file",
                           text="Config file created successfully",
@@ -337,12 +366,21 @@ def save_config():
 def update_config():  
   id = str(request.args.get('id', None))
   name = str(request.args.get('name', None))
-  servicefor = str(request.args.get('service_for', None))
-  config = str(request.args.get('config', None))
+  site = str(request.args.get('site', None))
+  start_url = str(request.args.get('start_url', None))
+  crawler_template_key = request.args.get('crawler_template_key', None)
+  scraper_template_key = request.args.get('scraper_template_key', None)
+  item = db.get_config(id)['config']
   document = { '$set': { 
-              "name": name,
-              "for": servicefor,
-              "config": config
+              "name": name,              
+              "config": {
+                "site": site,
+                "start_url": start_url,
+                "user_id": item['user_id'],
+                "session_id": item['session_id'],
+                "crawler_template_key": oid(crawler_template_key),
+                "scraper_template_key": oid(scraper_template_key)
+              }
              }}
   db.update_config(id, document)
   return render_template("message.html",
