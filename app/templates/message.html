@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="content animate-panel">
+<div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="hpanel">
+                <div class="panel-heading">
+                    <div class="panel-tools">
+                        <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                        <a class="closebox"><i class="fa fa-times"></i></a>
+                    </div>
+                    {{ title }}
+                </div>
+                <div class="panel-body" align="center">                    
+    				<h1>{{ text }}</h1>   
+    				<div class="hr-line-dashed"></div>
+                    <div class="col-sm-8 col-sm-offset-2">
+                        <button class="btn btn-primary" type="submit" id="button">Return</button>
+                    </div>    				 				
+    			</div>   			
+    		</div>
+    	</div>
+    </div>
+</div>
+</div>
+
+<script>
+
+		$(function(){
+		  $("#home").addClass("active");
+	      $("#button").click( function() {
+              window.location.replace("/{{ function }}");
+	          return false;
+	      });
+	    });	
+
+</script>    
+
+{% endblock %}
