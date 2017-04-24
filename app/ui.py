@@ -1,11 +1,7 @@
 #!/usr/bin/python
 
-import sys
 import uuid
 from bson.objectid import ObjectId
-from os import path
-_path = path.abspath(path.join(path.dirname(path.abspath(__file__)), '../../Core'))
-sys.path.append(_path)
 
 from graze import (
     Graze,
