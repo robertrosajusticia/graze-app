@@ -23,8 +23,9 @@ from flask import (
     redirect
 )
 
-from app import app
+from flask import Flask
 
+app = Flask(__name__)
 
 graze = Graze()
 db = MongoDB()
