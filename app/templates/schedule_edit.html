@@ -40,7 +40,7 @@
 		            <div class="col-sm-10"><select class="form-control m-b" name="config_id" id="config_id">
 						<option value="">Select</option>	
 						{% for row in item.services_list %}					
-						<option value="{{ row['config_key'] }}" {% if "{}".format(row['config_key']) == item.id %}selected{% endif %}>{{ row['name'] }}</option>
+						<option value="{{ row['_id'] }}" {% if "{}".format(row['_id']) == item.id %}selected{% endif %}>{{ row['name'] }}</option>
 						{% endfor %}					            
 		            </select>
 		            </div>
