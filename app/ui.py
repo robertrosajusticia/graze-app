@@ -9,6 +9,12 @@ from graze import (
     Time
 )
 
+from graze.schemas import(
+    config_schema,
+    crawler_template_schema,
+    scraper_template_schema
+    )
+
 from datetime import datetime
 
 import os
@@ -20,12 +26,16 @@ from flask import (
     abort,
     jsonify,
     request,
-    redirect
+    redirect,
+    flash
 )
 
 from flask import Flask
 
 app = Flask(__name__)
+
+# Set session secret key
+app.secret_key = 'some_secret'
 
 graze = Graze()
 db = MongoDB()
@@ -46,6 +56,16 @@ def oid(id_=None):
         return ObjectId(id_)
     raise MongoError("Could not create ObjectId using: {}".format(id_))
 
+
+def render_template_validation(template, servicefor):
+    if servicefor == "crawler":
+        template_schema = crawler_template_schema
+    else:
+        template_schema = scraper_template_schema
+
+    
+
+    return template_schema.validated(template), template_schema.errors
 
 @app.route('/')
 @app.route('/index')
@@ -247,19 +267,35 @@ def save_template():
     name = str(request.args.get('name', None))
     servicefor = str(request.args.get('service_for', None))
     template = request.args.get('template', None)
-    template = json.loads(template)
+    template = json.loads(template)        
 
-    db.add_template({
-        "name": name,
-        "for": servicefor,
-        "template": template
-    })
+    normalised_template, errors = render_template_validation(template, servicefor)
+    if normalised_template:
+        db.add_template({
+            "name": name,
+            "for": servicefor,
+            "template": normalised_template
+        })
 
-    return render_template("message.html",
-        title="Create new template",
-        text="Template created successfully",
-        function="template_list"
-    )
+        return render_template("message.html", 
+                            title="Create new template", 
+                            text="Template created successfully", 
+                            function="template_list")
+    else:
+        item = {}
+        item['name'] = name
+        item['for'] = servicefor
+        item['template'] = str(json.dumps(template, indent=4))
+
+        flash("The template you uploaded is invalid, please check the errors and try again: ")       
+        for error in errors:            
+            for text in errors[error][0]: # It's contained in an object whose 1st item is the content
+                flash("  - Error found in '" + str(error) + "': " + text + ": " + str(errors[error][0][text][0]))
+
+        return render_template("template_edit.html",
+                            item= item,
+                            btn_txt="Create new template",
+                            function="template_save")
 
 @app.route('/template_update')
 def update_template():
@@ -269,19 +305,39 @@ def update_template():
     template = request.args.get('template', None).decode('utf-8')
     template = json.loads(template)
 
-    db.update_template(id, {
-        '$set': {
-            "name": name,
-            "for": servicefor,
-            "template": template
-        }
-    })
+    normalised_template, errors = render_template_validation(template, servicefor)
+    if normalised_template:
+        db.update_template(id, {
+            '$set': {
+                "name": name,
+                "for": servicefor,
+                "template": normalised_template
+            }
+        })
 
-    return render_template("message.html",
-        title="Update template",
-        text="Template updated successfully",
-        function="template_list"
-    )
+        return render_template("message.html",
+            title="Update template",
+            text="Template updated successfully",
+            function="template_list"
+        )
+    
+    else:
+        item = {}
+        item["_id"] = id
+        item['name'] = name
+        item['for'] = servicefor
+        item['template'] = str(json.dumps(template, indent=4))
+
+        flash("The template you uploaded is invalid, please check the errors and try again: ")       
+        for error in errors:            
+            for text in errors[error][0]: # It's contained in an object whose 1st item is the content
+                flash("  - Error found in '" + str(error) + "': " + text + ": " + str(errors[error][0][text][0]))
+        
+        return render_template("template_edit.html",
+                            item= item,
+                            btn_txt="Update template",
+                            function="template_update")
+
 
 @app.route('/template_delete')
 def delete_template():
