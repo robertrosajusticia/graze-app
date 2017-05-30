@@ -94,7 +94,16 @@
 <!-- Main Wrapper -->
 <div id="wrapper">
 
-
+<!-- Display flashed messages -->
+{% with msgs = get_flashed_messages() %}
+{% if msgs %}
+  <div class="alert alert-info">  
+    {%- for msg in msgs %}
+      <div>{{ msg }}</div>
+    {% endfor -%}
+  </div>
+{% endif %}
+{% endwith %}
 
 {% block content %}{% endblock %}
 
