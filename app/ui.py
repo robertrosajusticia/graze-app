@@ -3,33 +3,50 @@
 import uuid
 from bson.objectid import ObjectId
 
-from graze import (
-    Graze,
-    MongoDB,
-    Time
+from graze import Graze
+from graze.modules import Time
+from graze.services import MongoDB
+from graze._common import get_log_dir
+from graze.exceptions import (
+    MongoError
 )
+
+from graze.schemas import(
+    config_schema,
+    crawler_template_schema,
+    scraper_template_schema
+    )
 
 from datetime import datetime
 
 import os
 import sys
 import json
+import glob
+
 from flask import (
     render_template,
     url_for,
     abort,
     jsonify,
     request,
-    redirect
+    redirect,
+    flash
 )
 
 from flask import Flask
 
 app = Flask(__name__)
 
+# Set session secret key
+app.secret_key = 'some_secret'
+
 graze = Graze()
 db = MongoDB()
 time = Time()
+
+SUPPORT_EMAIL_CONTACT="adam.salma@kantarworldpanel.com"
+
 
 interval_types = [["hour","Hour"],["daily","Day"],["weekly","Week"]]
 interval_values = [(str(x), str(x)) for x in range(1, 10+1)]
@@ -46,6 +63,16 @@ def oid(id_=None):
         return ObjectId(id_)
     raise MongoError("Could not create ObjectId using: {}".format(id_))
 
+
+def render_template_validation(template, servicefor):
+    if servicefor == "crawler":
+        template_schema = crawler_template_schema
+    else:
+        template_schema = scraper_template_schema
+
+    
+
+    return template_schema.validated(template), template_schema.errors
 
 @app.route('/')
 @app.route('/index')
@@ -247,19 +274,35 @@ def save_template():
     name = str(request.args.get('name', None))
     servicefor = str(request.args.get('service_for', None))
     template = request.args.get('template', None)
-    template = json.loads(template)
+    template = json.loads(template)        
 
-    db.add_template({
-        "name": name,
-        "for": servicefor,
-        "template": template
-    })
+    normalised_template, errors = render_template_validation(template, servicefor)
+    if normalised_template:
+        db.add_template({
+            "name": name,
+            "for": servicefor,
+            "template": normalised_template
+        })
 
-    return render_template("message.html",
-        title="Create new template",
-        text="Template created successfully",
-        function="template_list"
-    )
+        return render_template("message.html", 
+                            title="Create new template", 
+                            text="Template created successfully", 
+                            function="template_list")
+    else:
+        item = {}
+        item['name'] = name
+        item['for'] = servicefor
+        item['template'] = str(json.dumps(template, indent=4))
+
+        flash("The template you uploaded is invalid, please check the errors and try again: ")       
+        for error in errors:            
+            for text in errors[error][0]: # It's contained in an object whose 1st item is the content
+                flash("  - Error found in '" + str(error) + "': " + text + ": " + str(errors[error][0][text][0]))
+
+        return render_template("template_edit.html",
+                            item= item,
+                            btn_txt="Create new template",
+                            function="template_save")
 
 @app.route('/template_update')
 def update_template():
@@ -269,19 +312,39 @@ def update_template():
     template = request.args.get('template', None).decode('utf-8')
     template = json.loads(template)
 
-    db.update_template(id, {
-        '$set': {
-            "name": name,
-            "for": servicefor,
-            "template": template
-        }
-    })
+    normalised_template, errors = render_template_validation(template, servicefor)
+    if normalised_template:
+        db.update_template(id, {
+            '$set': {
+                "name": name,
+                "for": servicefor,
+                "template": normalised_template
+            }
+        })
 
-    return render_template("message.html",
-        title="Update template",
-        text="Template updated successfully",
-        function="template_list"
-    )
+        return render_template("message.html",
+            title="Update template",
+            text="Template updated successfully",
+            function="template_list"
+        )
+    
+    else:
+        item = {}
+        item["_id"] = id
+        item['name'] = name
+        item['for'] = servicefor
+        item['template'] = str(json.dumps(template, indent=4))
+
+        flash("The template you uploaded is invalid, please check the errors and try again: ")       
+        for error in errors:            
+            for text in errors[error][0]: # It's contained in an object whose 1st item is the content
+                flash("  - Error found in '" + str(error) + "': " + text + ": " + str(errors[error][0][text][0]))
+        
+        return render_template("template_edit.html",
+                            item= item,
+                            btn_txt="Update template",
+                            function="template_update")
+
 
 @app.route('/template_delete')
 def delete_template():
@@ -403,3 +466,94 @@ def delete_config():
         title="Config files manager",
         items=configs
     )
+
+
+
+
+
+
+
+
+
+### ---- ###
+### LOGS ###
+### ---- ###
+
+LOG_DIR = get_log_dir()
+
+def get_logpaths(filter=""):
+    return [log for log in glob.glob(os.path.join(LOG_DIR, '*.log'))
+        if filter in log]
+
+@app.route('/logs')
+def logs():
+    logs = []
+    config_documents = db.get_configs({})
+
+    for log in get_logpaths():
+        config_document = get_config_from_log(config_documents, log)
+        if config_document:
+            logs.append({
+                'name': config_document.get('name'),
+                'site': config_document['config']['site'],
+                'path': os.path.basename(log),
+                'last_modified': getFileLastMofifiedTimestamp(log),
+            })
+
+    return render_template("logs.html",
+        title="Logs",
+        items=logs
+    )
+
+@app.route('/log')
+def log():
+    logname = str(request.args.get('name'))
+    _logpath = str(request.args.get('path'))
+    logpath = os.path.join(LOG_DIR, _logpath)
+
+    if os.path.exists(logpath):
+        log = request.args.copy()
+        with open(logpath, "r") as fileobj:
+            log['content'] = fileobj.read()
+            return render_template("log.html",
+                title="{} Log".format(logname),
+                log=log)
+
+    return render_template("message.html",
+        title="Error {}".format(logname),
+        text="No log exists with a name of {}.".format(logname),
+        function="log_list")
+
+
+@app.route('/delete_log')
+def delete_log():
+    pass
+
+
+def getFileLastMofifiedTimestamp(filepath):
+    return int(os.path.getmtime(filepath)) * 1000
+
+
+
+
+
+def get_config_from_log(config_documents, logname):
+    for x in config_documents:
+        if x.get('_id', '').__str__() in logname:
+            return x
+
+def helper__print_attrs(obj):
+    # prints obj.x, obj.y etc
+    print "\n\n\n****"
+    for x in dir(obj):
+        print x
+    print "****\n\n\n"
+    raise
+
+def helper__print_keys(obj):
+    # prints obj['x'], obj['y'] etc
+    print "\n\n\n****"
+    for x in obj.keys():
+        print x
+    print "****\n\n\n"
+    raise

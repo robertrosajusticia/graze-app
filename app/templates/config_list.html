@@ -27,22 +27,22 @@
                     </tr>
                     </thead>
                     <tbody>
-				    {% for item in items %}    		
+				    {% for item in items %}
 				    	<tr>
-			    			<td>{{ item.name }}</td>		
+			    			<td>{{ item.name }}</td>
 			    			<td>{{ item.config.get('site') }}</td>
                             <td>{{ item.config.get('start_url') }}</td>
 			    			<td><a href="javascript:void(0);" onClick="edit('{{ item._id}}');">Edit</a></td>
-							<td><a href="javascript:void(0);" onClick="del('{{ item._id}}');">Delete</a></td>   			
-			    		</tr>    			
-				    {% endfor %}  
+							<td><a href="javascript:void(0);" onClick="del('{{ item._id}}');">Delete</a></td>
+			    		</tr>
+				    {% endfor %}
                     </tbody>
                 </table>
-</div>
+    </div>
 
     <p>
     	<input id="newbutton" class="ui-button" value="Create new config file">
-    </p>    
+    </p>
 
 	<script>
 		$(function(){
@@ -51,18 +51,18 @@
               window.location.replace("/config_new");
 	          return false;
 	      });
-	    });	   
+	    });
 
 		function edit(id) {
-			window.location.replace("/config_edit?id="+id); 	
+			window.location.replace("/config_edit?id="+id);
 			return false;
-		}		
+		}
 
 		function del(id) {
 			window.location.replace("/config_delete?id="+id);
 			return false;
 		}
 
-	</script>    
+	</script>
 
 {% endblock %}
