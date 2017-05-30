@@ -3685,3 +3685,10 @@ ul.h-list li:hover a {
     margin-left: 10px;
   }
 }
+
+
+
+.log_table_item:hover {
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
