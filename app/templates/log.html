@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content animate-panel">
+
+<div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="hpanel">
+                <h2 style="text-align: center; margin: 0 auto; letter-spacing: 0.075em">{{ log.name }}</h2>
+                <div class="hr-line-dashed" style="clear: both"></div>
+
+                <div class="row">
+                    <div class="col-lg-4">{{ log.path }}</div>
+                </div>
+
+                <div class="hr-line-dashed" style="clear: both"></div>
+                <div>
+                    <textarea id="content" style="width: 100%; font-family: monospace;" class="form-control" data-autoresize>{{ log.content }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function view_log(id) {
+            window.location.replace("/log_view?id="+id);
+            return false;
+        }
+
+        function delete_log(id) {
+            window.location.replace("/log_delete?id="+id);
+            return false;
+        }
+
+        $("#content").height( $("#content")[0].scrollHeight );
+
+        $.each($('#content[data-autoresize]'), function() {
+            var $this = $(this);
+            $this.html($this.text().trim());
+
+            var offset = this.offsetHeight - this.clientHeight;
+
+            var resizeTextarea = function(el) {
+                $(el).css('height', 'auto').css('height', el.scrollHeight + offset);
+            };
+
+            $(this).on('keyup input', function() { resizeTextarea(this); }).removeAttr('data-autoresize');
+        });
+    </script>
+
+{% endblock %}
