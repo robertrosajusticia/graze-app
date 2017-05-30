@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content animate-panel">
+
+<div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="hpanel">
+                <div class="panel-heading">
+                    <div class="panel-tools">
+                        <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                        <a class="closebox"><i class="fa fa-times"></i></a>
+                    </div>
+                </div>
+
+                {% if items %}
+                    <button id="logupdate">Update Logs</button>
+
+                    <table class="table">
+                        <thead>
+                            <h2>Logs:</h2>
+                            <tr>
+                                <th>Name</th>
+                                <th>Site</th>
+                                <th>Last updated</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody class="panel-body">
+                            {% for item in items %}
+                                <tr onClick="view_log('{{ item.get('path') }}', '{{ item.get('name') }}')" class="log_table_item">
+                                    <td>{{ item.get('name') }}</td>
+                                    <td>{{ item.get('site') }}</td>
+                                    <td class="timeago">{{ item.get('last_modified')}}</td>
+                                    <td class="btn btn-danger">Delete</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                {% if not items %}
+                    <br>
+                    <h2>No Logs have been created yet. Try refreshing the page.</h2>
+                    <br>
+                    <h4>If you have just deployed a service, allow a few minutes for the engine to set itself up</h4>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function view_log(path, name) {
+            window.location.replace("/log?path=" +path+ "&name=" +name);
+            return false;
+        }
+
+        function delete_log(id) {
+            window.location.replace("/log_delete?name="+id);
+            return false;
+        }
+
+        $(function(){
+            $('.timeago').each(function(i, el) {
+                var time = moment(parseInt($(el).text()))
+                console.log(parseInt($(el).text()));
+                console.log(time);
+                console.log(time.fromNow());
+                $(el).text( time.fromNow() );
+            })
+        })
+    </script>
+
+{% endblock %}

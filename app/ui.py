@@ -3,10 +3,12 @@
 import uuid
 from bson.objectid import ObjectId
 
-from graze import (
-    Graze,
-    MongoDB,
-    Time
+from graze import Graze
+from graze.modules import Time
+from graze.services import MongoDB
+from graze._common import get_log_dir
+from graze.exceptions import (
+    MongoError
 )
 
 from datetime import datetime
@@ -14,6 +16,8 @@ from datetime import datetime
 import os
 import sys
 import json
+import glob
+
 from flask import (
     render_template,
     url_for,
@@ -30,6 +34,9 @@ app = Flask(__name__)
 graze = Graze()
 db = MongoDB()
 time = Time()
+
+SUPPORT_EMAIL_CONTACT="adam.salma@kantarworldpanel.com"
+
 
 interval_types = [["hour","Hour"],["daily","Day"],["weekly","Week"]]
 interval_values = [(str(x), str(x)) for x in range(1, 10+1)]
@@ -403,3 +410,94 @@ def delete_config():
         title="Config files manager",
         items=configs
     )
+
+
+
+
+
+
+
+
+
+### ---- ###
+### LOGS ###
+### ---- ###
+
+LOG_DIR = get_log_dir()
+
+def get_logpaths(filter=""):
+    return [log for log in glob.glob(os.path.join(LOG_DIR, '*.log'))
+        if filter in log]
+
+@app.route('/logs')
+def logs():
+    logs = []
+    config_documents = db.get_configs({})
+
+    for log in get_logpaths():
+        config_document = get_config_from_log(config_documents, log)
+        if config_document:
+            logs.append({
+                'name': config_document.get('name'),
+                'site': config_document['config']['site'],
+                'path': os.path.basename(log),
+                'last_modified': getFileLastMofifiedTimestamp(log),
+            })
+
+    return render_template("logs.html",
+        title="Logs",
+        items=logs
+    )
+
+@app.route('/log')
+def log():
+    logname = str(request.args.get('name'))
+    _logpath = str(request.args.get('path'))
+    logpath = os.path.join(LOG_DIR, _logpath)
+
+    if os.path.exists(logpath):
+        log = request.args.copy()
+        with open(logpath, "r") as fileobj:
+            log['content'] = fileobj.read()
+            return render_template("log.html",
+                title="{} Log".format(logname),
+                log=log)
+
+    return render_template("message.html",
+        title="Error {}".format(logname),
+        text="No log exists with a name of {}.".format(logname),
+        function="log_list")
+
+
+@app.route('/delete_log')
+def delete_log():
+    pass
+
+
+def getFileLastMofifiedTimestamp(filepath):
+    return int(os.path.getmtime(filepath)) * 1000
+
+
+
+
+
+def get_config_from_log(config_documents, logname):
+    for x in config_documents:
+        if x.get('_id', '').__str__() in logname:
+            return x
+
+def helper__print_attrs(obj):
+    # prints obj.x, obj.y etc
+    print "\n\n\n****"
+    for x in dir(obj):
+        print x
+    print "****\n\n\n"
+    raise
+
+def helper__print_keys(obj):
+    # prints obj['x'], obj['y'] etc
+    print "\n\n\n****"
+    for x in obj.keys():
+        print x
+    print "****\n\n\n"
+    raise
