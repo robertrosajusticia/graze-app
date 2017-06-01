@@ -1,30 +1,26 @@
 #!/usr/bin/python
 
 import uuid
-from bson.objectid import ObjectId
-
-from graze import Graze
-from graze.modules import Time
-from graze.services import MongoDB
-from graze._common import get_log_dir
-from graze.exceptions import (
-    MongoError
-)
-
-from graze.schemas import(
-    config_schema,
-    crawler_template_schema,
-    scraper_template_schema
-    )
-
-from datetime import datetime
-
 import os
 import sys
 import json
 import glob
 
+# Graze
+from graze import Graze
+from graze.modules import Time
+from graze.services import MongoDB
+from graze._common import get_log_dir
+from graze.exceptions import MongoError
+from graze.schemas import(
+    config_schema,
+    crawler_template_schema,
+    scraper_template_schema
+)
+
+# Flask
 from flask import (
+    Flask,
     render_template,
     url_for,
     abort,
@@ -34,19 +30,19 @@ from flask import (
     flash
 )
 
-from flask import Flask
+from datetime import datetime
+from bson.objectid import ObjectId
+
 
 app = Flask(__name__)
 
 # Set session secret key
 app.secret_key = 'some_secret'
 
+
 graze = Graze()
 db = MongoDB()
 time = Time()
-
-SUPPORT_EMAIL_CONTACT="adam.salma@kantarworldpanel.com"
-
 
 interval_types = [["hour","Hour"],["daily","Day"],["weekly","Week"]]
 interval_values = [(str(x), str(x)) for x in range(1, 10+1)]
@@ -70,9 +66,10 @@ def render_template_validation(template, servicefor):
     else:
         template_schema = scraper_template_schema
 
-    
+
 
     return template_schema.validated(template), template_schema.errors
+
 
 @app.route('/')
 @app.route('/index')
@@ -274,7 +271,7 @@ def save_template():
     name = str(request.args.get('name', None))
     servicefor = str(request.args.get('service_for', None))
     template = request.args.get('template', None)
-    template = json.loads(template)        
+    template = json.loads(template)
 
     normalised_template, errors = render_template_validation(template, servicefor)
     if normalised_template:
@@ -284,9 +281,9 @@ def save_template():
             "template": normalised_template
         })
 
-        return render_template("message.html", 
-                            title="Create new template", 
-                            text="Template created successfully", 
+        return render_template("message.html",
+                            title="Create new template",
+                            text="Template created successfully",
                             function="template_list")
     else:
         item = {}
@@ -294,8 +291,8 @@ def save_template():
         item['for'] = servicefor
         item['template'] = str(json.dumps(template, indent=4))
 
-        flash("The template you uploaded is invalid, please check the errors and try again: ")       
-        for error in errors:            
+        flash("The template you uploaded is invalid, please check the errors and try again: ")
+        for error in errors:
             for text in errors[error][0]: # It's contained in an object whose 1st item is the content
                 flash("  - Error found in '" + str(error) + "': " + text + ": " + str(errors[error][0][text][0]))
 
@@ -327,7 +324,7 @@ def update_template():
             text="Template updated successfully",
             function="template_list"
         )
-    
+
     else:
         item = {}
         item["_id"] = id
@@ -335,11 +332,11 @@ def update_template():
         item['for'] = servicefor
         item['template'] = str(json.dumps(template, indent=4))
 
-        flash("The template you uploaded is invalid, please check the errors and try again: ")       
-        for error in errors:            
+        flash("The template you uploaded is invalid, please check the errors and try again: ")
+        for error in errors:
             for text in errors[error][0]: # It's contained in an object whose 1st item is the content
                 flash("  - Error found in '" + str(error) + "': " + text + ": " + str(errors[error][0][text][0]))
-        
+
         return render_template("template_edit.html",
                             item= item,
                             btn_txt="Update template",
